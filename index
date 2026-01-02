@@ -1,0 +1,1140 @@
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lead Intelligence — Microdati (Immobili/Attività/Locali)</title>
+  <meta name="description" content="Workflow operativo 90 minuti + CRM leggero con scoring microdati (A/B/C), script, follow-up e export CSV/JSON. Offline (localStorage)."/>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f1a33; --panel2:#0c152b;
+      --text:#eaf0ff; --muted:#b9c4e6; --border:rgba(255,255,255,.12);
+      --brand:#6ee7ff; --accent:#a78bfa; --ok:#34d399; --warn:#fbbf24; --bad:#fb7185;
+      --shadow: 0 18px 50px rgba(0,0,0,.35); --r:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:var(--sans); color:var(--text); background:var(--bg);
+      background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(110,231,255,.20), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(167,139,250,.18), transparent 55%),
+        radial-gradient(800px 500px at 30% 110%, rgba(52,211,153,.12), transparent 55%),
+        var(--bg);
+    }
+    a{color:inherit}
+    .topbar{
+      position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(11,18,32,.88), rgba(11,18,32,.35));
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .nav{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      max-width:1200px; margin:0 auto; padding:12px 18px;
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{
+      width:34px;height:34px;border-radius:12px;
+      background: linear-gradient(135deg, var(--brand), var(--accent));
+      box-shadow: 0 10px 30px rgba(110,231,255,.18);
+    }
+    .title{font-weight:900; letter-spacing:.2px}
+    .subtitle{font-size:12px;color:rgba(234,240,255,.75)}
+    .pillrow{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end}
+    .pill, button{
+      border:1px solid var(--border); background:rgba(15,26,51,.55); color:var(--text);
+      border-radius:999px; padding:10px 12px; cursor:pointer; text-decoration:none;
+      display:inline-flex; align-items:center; gap:8px; font-weight:800;
+    }
+    button:active{transform: translateY(1px)}
+    .cta{background: linear-gradient(135deg, var(--brand), var(--accent)); color:#061027; border:none}
+    .grid{
+      display:grid; grid-template-columns: 1.05fr .95fr; gap:14px; padding:18px 0;
+      align-items:start;
+    }
+    .card{
+      background:rgba(15,26,51,.62); border:1px solid var(--border); border-radius:var(--r);
+      box-shadow:var(--shadow); overflow:hidden;
+    }
+    .cardHd{
+      padding:14px 14px 12px; border-bottom:1px solid var(--border);
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center;
+    }
+    .cardHd h2{margin:0; font-size:16px}
+    .cardBd{padding:14px}
+    .muted{color:rgba(234,240,255,.70)}
+    .small{font-size:12px}
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
+    label{display:block; font-size:12px; font-weight:800; color:rgba(234,240,255,.78); margin:0 0 6px}
+    input, select, textarea{
+      width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--border);
+      background:rgba(12,21,43,.55); color:var(--text); outline:none;
+    }
+    textarea{min-height:90px; resize:vertical}
+    .btnRow{display:flex; gap:10px; flex-wrap:wrap}
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--border); border-radius:999px; padding:7px 10px;
+      background:rgba(12,21,43,.45); font-weight:800; font-size:12px;
+    }
+    .tag.ok{border-color: rgba(52,211,153,.35)}
+    .tag.warn{border-color: rgba(251,191,36,.35)}
+    .tag.bad{border-color: rgba(251,113,133,.35)}
+    .mono{font-family:var(--mono)}
+    .hr{height:1px;background:var(--border);margin:12px 0}
+    .list{
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .item{
+      border:1px solid var(--border); border-radius:16px; padding:12px;
+      background:rgba(12,21,43,.42);
+    }
+    .itemTop{display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap}
+    .itemTitle{font-weight:900}
+    .itemMeta{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .kbd{
+      font-family:var(--mono); font-size:12px; border:1px solid var(--border);
+      padding:3px 7px; border-radius:10px; background:rgba(11,18,32,.35);
+    }
+    .tblWrap{overflow:auto}
+    table{width:100%; border-collapse:separate; border-spacing:0}
+    th,td{padding:10px 10px; border-bottom:1px solid var(--border); font-size:13px; text-align:left; vertical-align:top}
+    th{position:sticky; top:0; background:rgba(15,26,51,.85); z-index:1}
+    tr:hover td{background:rgba(110,231,255,.06)}
+    .actions{display:flex; gap:8px; flex-wrap:wrap}
+    .iconBtn{
+      padding:8px 10px; border-radius:12px; font-weight:900;
+      border:1px solid var(--border); background:rgba(11,18,32,.35);
+    }
+    .iconBtn.ok{border-color: rgba(52,211,153,.35)}
+    .iconBtn.warn{border-color: rgba(251,191,36,.35)}
+    .iconBtn.bad{border-color: rgba(251,113,133,.35)}
+    .checklist{display:flex; flex-direction:column; gap:10px}
+    .chk{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px; border:1px solid var(--border); border-radius:14px;
+      background:rgba(12,21,43,.35);
+    }
+    .chk input{width:auto; margin-top:2px}
+    .stickyBottom{
+      position:sticky; bottom:0; background:linear-gradient(to top, rgba(11,18,32,.92), rgba(11,18,32,.45));
+      border-top:1px solid var(--border); padding:10px 14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    }
+    .timer{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .progress{
+      width:220px; max-width:50vw; height:10px; border-radius:999px; border:1px solid var(--border); overflow:hidden;
+      background:rgba(12,21,43,.35);
+    }
+    .bar{height:100%; width:0%; background: linear-gradient(135deg, var(--ok), var(--brand))}
+    .hide{display:none}
+    .toast{
+      position:fixed; right:16px; bottom:16px; z-index:50;
+      background:rgba(15,26,51,.85); border:1px solid var(--border);
+      border-radius:16px; padding:12px 14px; box-shadow:var(--shadow);
+      max-width:min(420px, 92vw);
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns: 1fr}
+      .progress{width:180px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div class="title">Lead Intelligence — Microdati</div>
+          <div class="subtitle">Workflow 90 minuti • A/B/C • Script • Follow-up • Export</div>
+        </div>
+      </div>
+      <div class="pillrow">
+        <a class="pill" id="openChat" target="_blank" rel="noopener">Apri ChatGPT (sessione)</a>
+        <button class="pill" id="btnBackup">Backup JSON</button>
+        <label class="pill" style="cursor:pointer">
+          Import JSON<input id="importFile" type="file" accept="application/json" class="hide" />
+        </label>
+        <button class="pill cta" id="btnNewDay">Nuovo Giorno</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div class="grid">
+      <!-- LEFT: WORKFLOW -->
+      <section class="card">
+        <div class="cardHd">
+          <h2>Ordine di esecuzione (Giorno)</h2>
+          <div class="itemMeta">
+            <span class="tag ok" id="tagA">A: 0</span>
+            <span class="tag warn" id="tagB">B: 0</span>
+            <span class="tag bad" id="tagC">C: 0</span>
+            <span class="tag" id="tagAll">Totale: 0</span>
+          </div>
+        </div>
+        <div class="cardBd">
+          <div class="row">
+            <div>
+              <label for="city">Città/Zona (UNA)</label>
+              <input id="city" placeholder="Es. Milano" />
+            </div>
+            <div>
+              <label for="targetType">Target del giorno</label>
+              <select id="targetType">
+                <option value="Locale commerciale">Locale commerciale</option>
+                <option value="Attività (cedesi)">Attività (cedesi)</option>
+                <option value="Immobile residenziale">Immobile residenziale</option>
+              </select>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div>
+              <label for="urgency">Urgenza cercata</label>
+              <select id="urgency">
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Bassa">Bassa</option>
+              </select>
+            </div>
+            <div>
+              <label for="timebox">Timebox (minuti)</label>
+              <select id="timebox">
+                <option value="90">90</option>
+                <option value="75">75</option>
+                <option value="60">60</option>
+                <option value="45">45</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="checklist" id="checklist">
+            <!-- injected -->
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <label>Query pronte (Facebook Gruppi)</label>
+              <div class="list" id="queries"></div>
+            </div>
+            <div>
+              <label>Script pronti (copiaincolla)</label>
+              <select id="scriptPick">
+                <option value="open">Apertura</option>
+                <option value="qualify">Qualifica (se dice sì)</option>
+                <option value="follow">Follow-up (24–48h)</option>
+                <option value="objection">Obiezione (ho già qualcuno / non spendo)</option>
+                <option value="closecall">Chiusura call (10 minuti)</option>
+              </select>
+              <textarea id="scriptBox" class="mono"></textarea>
+              <div class="btnRow">
+                <button class="pill" id="copyScript">Copia script</button>
+                <button class="pill" id="copyWA">Copia versione WhatsApp</button>
+              </div>
+              <div class="small muted">Personalizza 1 riga usando microdati (repost/urgente/commenti/foto).</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stickyBottom">
+          <div class="timer">
+            <span class="tag" id="timerText">Timer: 00:00</span>
+            <div class="progress" aria-label="Progress">
+              <div class="bar" id="bar"></div>
+            </div>
+            <button class="pill" id="btnStart">Start</button>
+            <button class="pill" id="btnPause">Pausa</button>
+            <button class="pill" id="btnReset">Reset</button>
+          </div>
+          <div class="btnRow">
+            <button class="pill" id="btnExportCSV">Export CSV</button>
+            <button class="pill" id="btnClearAll" title="Cancella tutti i dati (localStorage)">Reset Totale</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: LEADS -->
+      <section class="card">
+        <div class="cardHd">
+          <h2>Leads (microdati → A/B/C)</h2>
+          <div class="btnRow">
+            <button class="pill cta" id="btnAdd">Aggiungi lead</button>
+          </div>
+        </div>
+        <div class="cardBd">
+
+          <div class="row">
+            <div>
+              <label for="filterStatus">Filtro stato</label>
+              <select id="filterStatus">
+                <option value="ALL">Tutti</option>
+                <option value="NUOVO">NUOVO</option>
+                <option value="SCRITTO">SCRITTO</option>
+                <option value="RISPOSTO">RISPOSTO</option>
+                <option value="CALL">CALL</option>
+                <option value="CLIENTE">CLIENTE</option>
+                <option value="PERSO">PERSO</option>
+              </select>
+            </div>
+            <div>
+              <label for="filterGrade">Filtro priorità</label>
+              <select id="filterGrade">
+                <option value="ALL">Tutte</option>
+                <option value="A">A (subito)</option>
+                <option value="B">B (dopo)</option>
+                <option value="C">C (scarta)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="tblWrap">
+            <table id="tbl">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Fonte</th>
+                  <th>Nome</th>
+                  <th>Tipo</th>
+                  <th>Zona</th>
+                  <th>Link</th>
+                  <th>Microdati</th>
+                  <th>Score</th>
+                  <th>Grade</th>
+                  <th>Stato</th>
+                  <th>Follow-up</th>
+                  <th>Azioni</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast hide" id="toast"></div>
+
+  <!-- DIALOG: ADD/EDIT LEAD -->
+  <dialog id="dlg" style="border:none;border-radius:18px;background:rgba(15,26,51,.96);color:var(--text);max-width:min(860px,96vw);width:860px;box-shadow:var(--shadow);">
+    <form method="dialog" id="leadForm" style="margin:0">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="font-weight:900">Lead — Inserimento microdati</div>
+        <div class="btnRow">
+          <button class="pill" value="cancel">Annulla</button>
+          <button class="pill cta" id="saveLead" value="save">Salva</button>
+        </div>
+      </div>
+
+      <div style="padding:14px 16px">
+        <div class="row">
+          <div>
+            <label for="fDate">Data</label>
+            <input id="fDate" type="date" />
+          </div>
+          <div>
+            <label for="fSource">Fonte</label>
+            <select id="fSource">
+              <option>Facebook Gruppo</option>
+              <option>Marketplace</option>
+              <option>Instagram</option>
+              <option>LinkedIn</option>
+              <option>Altro</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label for="fName">Nome (autore)</label>
+            <input id="fName" placeholder="Es. Marco" />
+          </div>
+          <div>
+            <label for="fType">Tipo</label>
+            <select id="fType">
+              <option>Locale commerciale</option>
+              <option>Attività (cedesi)</option>
+              <option>Immobile residenziale</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label for="fZone">Zona</label>
+            <input id="fZone" placeholder="Es. Milano Centro / zona" />
+          </div>
+          <div>
+            <label for="fLink">Link post/annuncio</label>
+            <input id="fLink" placeholder="Incolla link" />
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <label>Microdati — difficoltà (spunta se presente)</label>
+            <div class="checklist">
+              <label class="chk"><input type="checkbox" data-md="fewPhotos">Poche foto (1–3)</label>
+              <label class="chk"><input type="checkbox" data-md="badPhotos">Foto scarse/buie/storte</label>
+              <label class="chk"><input type="checkbox" data-md="shortDesc">Descrizione troppo corta (&lt; 3 righe)</label>
+              <label class="chk"><input type="checkbox" data-md="noCTA">Nessuna CTA (scrivimi/chiama)</label>
+              <label class="chk"><input type="checkbox" data-md="typos">Errori evidenti / scrittura di fretta</label>
+              <label class="chk"><input type="checkbox" data-md="repost">Ripubblicazione frequente / “riposto”</label>
+              <label class="chk"><input type="checkbox" data-md="stale">Annuncio fermo (molti giorni online)</label>
+              <label class="chk"><input type="checkbox" data-md="priceDrop">“Ribassato / trattabile / urgente”</label>
+            </div>
+          </div>
+          <div>
+            <label>Microdati — apertura (spunta se presente)</label>
+            <div class="checklist">
+              <label class="chk"><input type="checkbox" data-md="repliesComments">Risponde nei commenti</label>
+              <label class="chk"><input type="checkbox" data-md="manyAsks">Molti commenti “info/ti ho scritto”</label>
+              <label class="chk"><input type="checkbox" data-md="friendlyTone">Tono gentile / collaborativo</label>
+              <label class="chk"><input type="checkbox" data-md="nonPro">Non professionale (privato)</label>
+              <label class="chk"><input type="checkbox" data-md="mentionsProblem">Cita problema (“pochi contatti”, “non riesco”) </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label for="fStatus">Stato</label>
+            <select id="fStatus">
+              <option>NUOVO</option>
+              <option>SCRITTO</option>
+              <option>RISPOSTO</option>
+              <option>CALL</option>
+              <option>CLIENTE</option>
+              <option>PERSO</option>
+            </select>
+          </div>
+          <div>
+            <label for="fFollow">Follow-up (data)</label>
+            <input id="fFollow" type="date" />
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label for="fNotes">Note (obiezioni, dettagli, prossima mossa)</label>
+          <textarea id="fNotes" placeholder="Es. dice 'ho già agenzia', ripubblicato 3 volte, foto scarse..."></textarea>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <div class="tag" id="calcScore">Score: 0</div>
+            <div class="small muted" style="margin-top:6px">
+              Scoring automatico: microdati difficoltà + apertura → Grade A/B/C.
+            </div>
+          </div>
+          <div class="btnRow" style="justify-content:flex-end">
+            <button class="pill" type="button" id="btnAutoMsg">Genera messaggio (in script)</button>
+            <button class="pill" type="button" id="btnSetFU">Follow-up +2 giorni</button>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // === Config ===
+    const CHATGPT_SESSION_URL = "https://chatgpt.com/c/6956fdeb-9040-832a-913d-8dc298aeb2cb";
+
+    // === Storage Keys ===
+    const K = {
+      settings: "li_settings_v1",
+      leads: "li_leads_v1",
+      checklist: "li_checklist_v1",
+      timer: "li_timer_v1"
+    };
+
+    // === Utilities ===
+    const $ = (s, el=document) => el.querySelector(s);
+    const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+    const todayISO = () => new Date().toISOString().slice(0,10);
+    const addDaysISO = (iso, days) => {
+      const d = iso ? new Date(iso + "T00:00:00") : new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0,10);
+    };
+    const safeJsonParse = (s, fallback) => { try{ return JSON.parse(s);}catch(e){ return fallback; } };
+    const uid = () => Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
+    const toast = (msg) => {
+      const t = $("#toast");
+      t.textContent = msg;
+      t.classList.remove("hide");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(()=>t.classList.add("hide"), 2200);
+    };
+    const csvEscape = (v) => {
+      const s = (v ?? "").toString();
+      if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+      return s;
+    };
+    const download = (filename, content, mime="text/plain;charset=utf-8") => {
+      const blob = new Blob([content], {type:mime});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    };
+
+    // === State ===
+    const state = {
+      settings: {
+        city: "",
+        targetType: "Locale commerciale",
+        urgency: "Alta",
+        timebox: 90
+      },
+      leads: [],
+      checklist: {},
+      timer: { running:false, startedAt:null, elapsedMs:0, totalMin:90 }
+    };
+
+    // === Checklist model ===
+    const CHECKS = [
+      {id:"t1", title:"Definisci target del giorno", desc:"Scegli 1 città, 1 tipo target, urgenza."},
+      {id:"t2", title:"Ricerca Facebook (Gruppi)", desc:"Usa le query, filtra ultimi 7 giorni, prendi solo privati."},
+      {id:"t3", title:"Raccogli 10 lead", desc:"Inserisci nel CRM link+nome+zona."},
+      {id:"t4", title:"Analizza microdati e classifica", desc:"Difficoltà + apertura → A/B/C. Contatta solo A (max 10)."},
+      {id:"t5", title:"Invia messaggi", desc:"Script breve + 1 personalizzazione microdati."},
+      {id:"t6", title:"Programma follow-up", desc:"+2 giorni per chi non risponde. 1 solo follow-up."},
+      {id:"t7", title:"Report finale", desc:"Messaggi inviati, risposte, call fissate, obiezioni."}
+    ];
+
+    // === Scripts ===
+    const scripts = {
+      open:
+`Ciao {NOME}, ho visto il tuo annuncio per {TIPO} in zona {ZONA}.
+Ho notato {MICRO}.
+
+Di solito annunci così ricevono poche richieste non per il prezzo,
+ma per poca visibilità mirata.
+
+Se vuoi, ti faccio un’analisi gratuita e ti dico 2–3 cose pratiche
+per ottenere più contatti reali (senza impegno).`,
+      qualify:
+`Perfetto. Mi dici:
+1) zona precisa
+2) prezzo indicativo
+3) se hai link/foto dell’annuncio
+
+Così ti mando l’analisi e una mini-strategia semplice.`,
+      follow:
+`Ciao {NOME}, ti scrivo al volo: se vuoi l’analisi gratuita del tuo annuncio,
+dimmi solo “Sì” e te la mando qui.`,
+      objection:
+`Chiaro. Infatti l’analisi è solo per capire se stai perdendo richieste
+per mancanza di visibilità. Poi decidi tu se fare qualcosa o no.`,
+      closecall:
+`Se vuoi facciamo 10 minuti di chiamata: ti dico come imposterei la promozione
+per ottenere richieste reali. Quando ti è comodo oggi o domani?`
+    };
+
+    // === Scoring ===
+    const mdWeights = {
+      // difficulty
+      fewPhotos: 2, badPhotos: 2, shortDesc: 2, noCTA: 2, typos: 1, repost: 2, stale: 2, priceDrop: 2,
+      // openness
+      repliesComments: 2, manyAsks: 1, friendlyTone: 1, nonPro: 2, mentionsProblem: 2
+    };
+
+    function computeScore(md){
+      let s = 0;
+      for(const k in md){ if(md[k]) s += (mdWeights[k] || 0); }
+      return s;
+    }
+    function computeGrade(md){
+      const score = computeScore(md);
+      const difficulty = ["fewPhotos","badPhotos","shortDesc","noCTA","typos","repost","stale","priceDrop"].reduce((a,k)=>a+(md[k]?1:0),0);
+      const openness = ["repliesComments","manyAsks","friendlyTone","nonPro","mentionsProblem"].reduce((a,k)=>a+(md[k]?1:0),0);
+
+      // Rules: A = difficulty>=2 AND openness>=2. B = difficulty>=2 AND openness<2. C otherwise.
+      if(difficulty >= 2 && openness >= 2) return "A";
+      if(difficulty >= 2 && openness < 2) return "B";
+      return "C";
+    }
+
+    // === Persistence ===
+    function load(){
+      const s = safeJsonParse(localStorage.getItem(K.settings), null);
+      const l = safeJsonParse(localStorage.getItem(K.leads), null);
+      const c = safeJsonParse(localStorage.getItem(K.checklist), null);
+      const t = safeJsonParse(localStorage.getItem(K.timer), null);
+
+      if(s) Object.assign(state.settings, s);
+      if(Array.isArray(l)) state.leads = l;
+      if(c) state.checklist = c;
+      if(t) state.timer = t;
+
+      // repair defaults
+      if(!state.timer.totalMin) state.timer.totalMin = state.settings.timebox || 90;
+    }
+    function save(){
+      localStorage.setItem(K.settings, JSON.stringify(state.settings));
+      localStorage.setItem(K.leads, JSON.stringify(state.leads));
+      localStorage.setItem(K.checklist, JSON.stringify(state.checklist));
+      localStorage.setItem(K.timer, JSON.stringify(state.timer));
+    }
+
+    // === UI Render ===
+    function renderChecklist(){
+      const box = $("#checklist");
+      box.innerHTML = "";
+      CHECKS.forEach(ch=>{
+        const done = !!state.checklist[ch.id];
+        const div = document.createElement("label");
+        div.className = "chk";
+        div.innerHTML = `
+          <input type="checkbox" ${done?"checked":""} data-chk="${ch.id}">
+          <div>
+            <div style="font-weight:900">${ch.title}</div>
+            <div class="small muted">${ch.desc}</div>
+          </div>`;
+        box.appendChild(div);
+      });
+      $$("input[data-chk]").forEach(el=>{
+        el.addEventListener("change", ()=>{
+          state.checklist[el.dataset.chk] = el.checked;
+          save();
+        });
+      });
+    }
+
+    function renderQueries(){
+      const q = $("#queries");
+      const city = (state.settings.city || "").trim() || "{CITTÀ}";
+      const t = state.settings.targetType;
+      const base = [
+        `vendesi locale commerciale ${city}`,
+        `cedesi attività ${city}`,
+        `affittasi negozio ${city}`,
+        `vendita attività ${city}`,
+      ];
+      q.innerHTML = base.map(s=>`
+        <div class="item">
+          <div class="itemTop">
+            <div class="itemTitle">${s}</div>
+            <div class="actions">
+              <button class="iconBtn" data-copyq="${encodeURIComponent(s)}">Copia</button>
+              <a class="iconBtn" href="https://www.facebook.com/search/groups?q=${encodeURIComponent(s)}" target="_blank" rel="noopener">Cerca</a>
+            </div>
+          </div>
+          <div class="small muted">Usa: Facebook → Gruppi → ultimi 7 giorni → privati → microdati (urgente/riposto/foto scarse/commenti).</div>
+        </div>`).join("");
+      $$("button[data-copyq]").forEach(b=>{
+        b.addEventListener("click", async ()=>{
+          const text = decodeURIComponent(b.dataset.copyq);
+          await navigator.clipboard.writeText(text);
+          toast("Query copiata");
+        });
+      });
+    }
+
+    function countGrades(){
+      const a = state.leads.filter(x=>x.grade==="A").length;
+      const b = state.leads.filter(x=>x.grade==="B").length;
+      const c = state.leads.filter(x=>x.grade==="C").length;
+      $("#tagA").textContent = `A: ${a}`;
+      $("#tagB").textContent = `B: ${b}`;
+      $("#tagC").textContent = `C: ${c}`;
+      $("#tagAll").textContent = `Totale: ${state.leads.length}`;
+    }
+
+    function renderTable(){
+      const st = $("#filterStatus").value;
+      const gr = $("#filterGrade").value;
+      const tbody = $("#tbody");
+      tbody.innerHTML = "";
+
+      const rows = state.leads
+        .filter(x=> st==="ALL" ? true : x.status===st)
+        .filter(x=> gr==="ALL" ? true : x.grade===gr)
+        .sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+
+      rows.forEach(lead=>{
+        const tr = document.createElement("tr");
+        const mdSummary = microSummary(lead.micro);
+        tr.innerHTML = `
+          <td class="mono">${lead.date||""}</td>
+          <td>${lead.source||""}</td>
+          <td><b>${escapeHtml(lead.name||"")}</b></td>
+          <td>${lead.type||""}</td>
+          <td>${escapeHtml(lead.zone||"")}</td>
+          <td>${lead.link? `<a href="${escapeAttr(lead.link)}" target="_blank" rel="noopener">Apri</a>`:""}</td>
+          <td class="small muted">${mdSummary}</td>
+          <td class="mono">${lead.score ?? 0}</td>
+          <td><span class="tag ${lead.grade==="A"?"ok":lead.grade==="B"?"warn":"bad"}">${lead.grade}</span></td>
+          <td>${lead.status||"NUOVO"}</td>
+          <td class="mono">${lead.follow||""}</td>
+          <td>
+            <div class="actions">
+              <button class="iconBtn" data-edit="${lead.id}">Modifica</button>
+              <button class="iconBtn ok" data-status="${lead.id}:RISPOSTO">Risposto</button>
+              <button class="iconBtn warn" data-status="${lead.id}:CALL">Call</button>
+              <button class="iconBtn bad" data-status="${lead.id}:PERSO">Perso</button>
+              <button class="iconBtn" data-msg="${lead.id}">Msg</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      $$("button[data-edit]").forEach(b=>b.addEventListener("click", ()=>openEdit(b.dataset.edit)));
+      $$("button[data-status]").forEach(b=>b.addEventListener("click", ()=>{
+        const [id, status] = b.dataset.status.split(":");
+        setStatus(id, status);
+      }));
+      $$("button[data-msg]").forEach(b=>b.addEventListener("click", ()=>{
+        const lead = state.leads.find(x=>x.id===b.dataset.msg);
+        if(!lead) return;
+        const micro = bestMicroPhrase(lead.micro);
+        const txt = fill(scripts.open, {
+          NOME: lead.name||"",
+          TIPO: lead.type||"",
+          ZONA: lead.zone||"",
+          MICRO: micro
+        });
+        $("#scriptPick").value = "open";
+        $("#scriptBox").value = txt;
+        toast("Messaggio generato nello script");
+      }));
+
+      countGrades();
+    }
+
+    function microSummary(md){
+      if(!md) return "";
+      const keys = Object.keys(md).filter(k=>md[k]);
+      if(keys.length===0) return "";
+      const map = {
+        fewPhotos:"poche foto", badPhotos:"foto scarse", shortDesc:"testo corto", noCTA:"senza CTA",
+        typos:"errori", repost:"ripostato", stale:"fermo", priceDrop:"urgente/ribasso",
+        repliesComments:"risponde", manyAsks:"molte richieste", friendlyTone:"tono ok", nonPro:"privato", mentionsProblem:"cita problema"
+      };
+      return keys.slice(0,6).map(k=>map[k]||k).join(", ") + (keys.length>6?"…":"");
+    }
+
+    function bestMicroPhrase(md){
+      // pick one human phrase from highest-signal keys
+      const order = ["repost","priceDrop","manyAsks","fewPhotos","badPhotos","shortDesc","noCTA","stale","mentionsProblem"];
+      const map = {
+        repost:"che l’hai ripubblicato",
+        priceDrop:"che hai indicato urgenza/trattabilità",
+        manyAsks:"che molti ti stanno chiedendo info nei commenti",
+        fewPhotos:"che ci sono poche foto",
+        badPhotos:"che le foto non rendono bene",
+        shortDesc:"che la descrizione è molto breve",
+        noCTA:"che manca una chiamata all’azione chiara",
+        stale:"che sembra fermo da un po’",
+        mentionsProblem:"che non arrivano abbastanza contatti"
+      };
+      for(const k of order){ if(md && md[k]) return map[k]; }
+      return "alcuni dettagli che si possono ottimizzare";
+    }
+
+    function escapeHtml(s){
+      return (s??"").toString().replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+    }
+    function escapeAttr(s){
+      return (s??"").toString().replace(/"/g,"%22");
+    }
+
+    // === Settings/UI binding ===
+    function bindSettings(){
+      $("#city").value = state.settings.city || "";
+      $("#targetType").value = state.settings.targetType || "Locale commerciale";
+      $("#urgency").value = state.settings.urgency || "Alta";
+      $("#timebox").value = String(state.settings.timebox || 90);
+
+      $("#city").addEventListener("input", ()=>{
+        state.settings.city = $("#city").value;
+        save(); renderQueries();
+      });
+      $("#targetType").addEventListener("change", ()=>{
+        state.settings.targetType = $("#targetType").value;
+        save(); renderQueries();
+      });
+      $("#urgency").addEventListener("change", ()=>{
+        state.settings.urgency = $("#urgency").value;
+        save();
+      });
+      $("#timebox").addEventListener("change", ()=>{
+        state.settings.timebox = parseInt($("#timebox").value,10);
+        state.timer.totalMin = state.settings.timebox;
+        save(); renderTimer();
+      });
+    }
+
+    // === Script box ===
+    function fill(tpl, vars){
+      return tpl.replace(/\{([A-Z_]+)\}/g, (_,k)=> (vars[k] ?? ""));
+    }
+    function renderScript(){
+      const key = $("#scriptPick").value;
+      $("#scriptBox").value = scripts[key] || "";
+    }
+    function bindScripts(){
+      $("#scriptPick").addEventListener("change", renderScript);
+      renderScript();
+
+      $("#copyScript").addEventListener("click", async ()=>{
+        await navigator.clipboard.writeText($("#scriptBox").value);
+        toast("Script copiato");
+      });
+      $("#copyWA").addEventListener("click", async ()=>{
+        // WhatsApp-friendly: reduce long lines
+        const txt = $("#scriptBox").value.replace(/\n{3,}/g,"\n\n").trim();
+        await navigator.clipboard.writeText(txt);
+        toast("Versione WhatsApp copiata");
+      });
+    }
+
+    // === Timer ===
+    let tickHandle = null;
+
+    function nowMs(){ return Date.now(); }
+    function timerTotalMs(){ return (state.timer.totalMin || 90) * 60 * 1000; }
+
+    function timerElapsed(){
+      if(state.timer.running && state.timer.startedAt){
+        return state.timer.elapsedMs + (nowMs() - state.timer.startedAt);
+      }
+      return state.timer.elapsedMs || 0;
+    }
+
+    function renderTimer(){
+      const el = $("#timerText");
+      const bar = $("#bar");
+      const total = timerTotalMs();
+      const elapsed = Math.min(timerElapsed(), total);
+      const rem = Math.max(0, total - elapsed);
+
+      const mm = String(Math.floor(rem/60000)).padStart(2,"0");
+      const ss = String(Math.floor((rem%60000)/1000)).padStart(2,"0");
+      el.textContent = `Timer: ${mm}:${ss}`;
+
+      const pct = total ? (elapsed/total*100) : 0;
+      bar.style.width = `${pct}%`;
+
+      if(rem===0 && state.timer.running){
+        state.timer.running = false;
+        state.timer.startedAt = null;
+        save();
+        toast("Timebox completato");
+        stopTick();
+      }
+    }
+
+    function startTick(){
+      stopTick();
+      tickHandle = setInterval(renderTimer, 250);
+    }
+    function stopTick(){
+      if(tickHandle){ clearInterval(tickHandle); tickHandle=null; }
+    }
+
+    function bindTimer(){
+      $("#btnStart").addEventListener("click", ()=>{
+        if(state.timer.running) return;
+        state.timer.running = true;
+        state.timer.startedAt = nowMs();
+        save();
+        startTick();
+        toast("Timer avviato");
+      });
+      $("#btnPause").addEventListener("click", ()=>{
+        if(!state.timer.running) return;
+        state.timer.elapsedMs = timerElapsed();
+        state.timer.running = false;
+        state.timer.startedAt = null;
+        save();
+        renderTimer();
+        stopTick();
+        toast("Timer in pausa");
+      });
+      $("#btnReset").addEventListener("click", ()=>{
+        state.timer.running=false; state.timer.startedAt=null; state.timer.elapsedMs=0;
+        save(); renderTimer(); stopTick();
+        toast("Timer resettato");
+      });
+      renderTimer();
+      if(state.timer.running) startTick();
+    }
+
+    // === Leads CRUD ===
+    let editingId = null;
+
+    function newLead(){
+      return {
+        id: uid(),
+        date: todayISO(),
+        source: "Facebook Gruppo",
+        name: "",
+        type: state.settings.targetType || "Locale commerciale",
+        zone: state.settings.city || "",
+        link: "",
+        micro: {},
+        notes: "",
+        status: "NUOVO",
+        follow: "",
+        score: 0,
+        grade: "C"
+      };
+    }
+
+    function openAdd(){
+      editingId = null;
+      const lead = newLead();
+      fillForm(lead);
+      $("#dlg").showModal();
+      computeFormScore();
+    }
+
+    function openEdit(id){
+      const lead = state.leads.find(x=>x.id===id);
+      if(!lead) return;
+      editingId = id;
+      fillForm(lead);
+      $("#dlg").showModal();
+      computeFormScore();
+    }
+
+    function fillForm(lead){
+      $("#fDate").value = lead.date || todayISO();
+      $("#fSource").value = lead.source || "Facebook Gruppo";
+      $("#fName").value = lead.name || "";
+      $("#fType").value = lead.type || "Locale commerciale";
+      $("#fZone").value = lead.zone || "";
+      $("#fLink").value = lead.link || "";
+      $("#fStatus").value = lead.status || "NUOVO";
+      $("#fFollow").value = lead.follow || "";
+      $("#fNotes").value = lead.notes || "";
+
+      // checkboxes microdati
+      $$("input[type=checkbox][data-md]", $("#dlg")).forEach(cb=>{
+        cb.checked = !!(lead.micro && lead.micro[cb.dataset.md]);
+      });
+    }
+
+    function readForm(){
+      const micro = {};
+      $$("input[type=checkbox][data-md]", $("#dlg")).forEach(cb=>{
+        micro[cb.dataset.md] = cb.checked;
+      });
+      const score = computeScore(micro);
+      const grade = computeGrade(micro);
+
+      return {
+        id: editingId || uid(),
+        date: $("#fDate").value || todayISO(),
+        source: $("#fSource").value,
+        name: $("#fName").value.trim(),
+        type: $("#fType").value,
+        zone: $("#fZone").value.trim(),
+        link: $("#fLink").value.trim(),
+        micro,
+        notes: $("#fNotes").value.trim(),
+        status: $("#fStatus").value,
+        follow: $("#fFollow").value,
+        score,
+        grade
+      };
+    }
+
+    function upsertLead(lead){
+      const idx = state.leads.findIndex(x=>x.id===lead.id);
+      if(idx>=0) state.leads[idx] = lead;
+      else state.leads.push(lead);
+      save();
+      renderTable();
+    }
+
+    function setStatus(id, status){
+      const lead = state.leads.find(x=>x.id===id);
+      if(!lead) return;
+      lead.status = status;
+      // convenience: auto follow-up if SCRITTO and empty
+      if(status==="SCRITTO" && !lead.follow) lead.follow = addDaysISO(todayISO(), 2);
+      save(); renderTable();
+      toast(`Stato → ${status}`);
+    }
+
+    function bindLeads(){
+      $("#btnAdd").addEventListener("click", openAdd);
+
+      $("#filterStatus").addEventListener("change", renderTable);
+      $("#filterGrade").addEventListener("change", renderTable);
+
+      // Form score recalc on any checkbox change
+      $$("input[type=checkbox][data-md]", $("#dlg")).forEach(cb=>{
+        cb.addEventListener("change", computeFormScore);
+      });
+
+      $("#btnSetFU").addEventListener("click", ()=>{
+        $("#fFollow").value = addDaysISO($("#fDate").value || todayISO(), 2);
+        toast("Follow-up impostato (+2 giorni)");
+      });
+
+      $("#btnAutoMsg").addEventListener("click", ()=>{
+        const lead = readForm();
+        const micro = bestMicroPhrase(lead.micro);
+        const txt = fill(scripts.open, {
+          NOME: lead.name || "",
+          TIPO: lead.type || "",
+          ZONA: lead.zone || state.settings.city || "",
+          MICRO: micro
+        });
+        $("#scriptPick").value = "open";
+        $("#scriptBox").value = txt;
+        toast("Messaggio generato nello script");
+      });
+
+      $("#leadForm").addEventListener("close", ()=>{
+        // dialog closed
+      });
+
+      $("#leadForm").addEventListener("submit", (e)=>{
+        // submit handled by dialog method=dialog; intercept is not needed
+      });
+
+      $("#dlg").addEventListener("close", ()=>{
+        // If saved
+        // Unfortunately dialog close reason isn't standardized across browsers; detect by activeElement? We'll use a flag.
+      });
+
+      $("#saveLead").addEventListener("click", ()=>{
+        const lead = readForm();
+        upsertLead(lead);
+        toast("Lead salvato");
+      });
+    }
+
+    function computeFormScore(){
+      const micro = {};
+      $$("input[type=checkbox][data-md]", $("#dlg")).forEach(cb=>micro[cb.dataset.md]=cb.checked);
+      const score = computeScore(micro);
+      const grade = computeGrade(micro);
+      const el = $("#calcScore");
+      el.textContent = `Score: ${score} • Grade: ${grade}`;
+      el.className = "tag " + (grade==="A"?"ok":grade==="B"?"warn":"bad");
+    }
+
+    // === Export / Import ===
+    function exportCSV(){
+      const header = ["date","source","name","type","zone","link","micro","score","grade","status","follow","notes"];
+      const lines = [header.join(",")];
+      state.leads.forEach(l=>{
+        const row = [
+          l.date, l.source, l.name, l.type, l.zone, l.link,
+          JSON.stringify(l.micro||{}), l.score, l.grade, l.status, l.follow, l.notes
+        ].map(csvEscape);
+        lines.push(row.join(","));
+      });
+      download(`leads_${todayISO()}.csv`, lines.join("\n"), "text/csv;charset=utf-8");
+    }
+
+    function backupJSON(){
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        settings: state.settings,
+        checklist: state.checklist,
+        timer: state.timer,
+        leads: state.leads
+      };
+      download(`backup_lead_intelligence_${todayISO()}.json`, JSON.stringify(payload, null, 2), "application/json;charset=utf-8");
+    }
+
+    function importJSON(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        const obj = safeJsonParse(reader.result, null);
+        if(!obj || typeof obj!=="object"){ toast("JSON non valido"); return; }
+        if(obj.settings) state.settings = Object.assign(state.settings, obj.settings);
+        if(obj.checklist) state.checklist = Object.assign({}, obj.checklist);
+        if(obj.timer) state.timer = Object.assign(state.timer, obj.timer);
+        if(Array.isArray(obj.leads)) state.leads = obj.leads;
+        save();
+        // refresh UI
+        bindSettings(); renderChecklist(); renderQueries(); renderTable(); renderTimer(); renderScript();
+        toast("Import completato");
+      };
+      reader.readAsText(file);
+    }
+
+    // === New Day / Reset ===
+    function newDay(){
+      // reset checklist and timer; keep leads
+      state.checklist = {};
+      state.timer = { running:false, startedAt:null, elapsedMs:0, totalMin: state.settings.timebox || 90 };
+      save();
+      renderChecklist(); renderTimer();
+      toast("Nuovo giorno pronto");
+    }
+
+    function resetAll(){
+      localStorage.removeItem(K.settings);
+      localStorage.removeItem(K.leads);
+      localStorage.removeItem(K.checklist);
+      localStorage.removeItem(K.timer);
+      location.reload();
+    }
+
+    // === Boot ===
+    function boot(){
+      load();
+
+      // Chat link
+      const a = $("#openChat");
+      a.href = CHATGPT_SESSION_URL;
+
+      // Bind main actions
+      $("#btnExportCSV").addEventListener("click", exportCSV);
+      $("#btnBackup").addEventListener("click", backupJSON);
+      $("#btnNewDay").addEventListener("click", newDay);
+      $("#btnClearAll").addEventListener("click", ()=>{
+        if(confirm("Vuoi cancellare TUTTI i dati salvati su questo browser?")) resetAll();
+      });
+
+      $("#importFile").addEventListener("change", (e)=>{
+        const f = e.target.files && e.target.files[0];
+        if(f) importJSON(f);
+        e.target.value = "";
+      });
+
+      bindSettings();
+      renderChecklist();
+      renderQueries();
+      bindScripts();
+      bindLeads();
+      bindTimer();
+      renderTable();
+      toast("Pronto. Inizia da 'Definisci target' e avvia il timer.");
+    }
+
+    boot();
+  </script>
+</body>
+</html>
