@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Campagna Email - Prova Estrazione</title>
+<style>
+:root{--g:#0b6b45;--g2:#0f8a5a;--bg:#f3f6f4;--card:#fff;--text:#173128;--muted:#6f7c77;--line:#d8e3de}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
+header{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;padding:18px 22px}
+header h1{margin:0;font-size:22px}header p{margin:5px 0 0;font-size:13px}
+.wrap{max-width:1250px;margin:18px auto;padding:0 15px 40px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px}.full{grid-column:1/-1}
+h2{font-size:17px;margin:0 0 12px}label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;margin:10px 0 5px;color:#35564a}
+input,select,textarea{width:100%;border:1px solid #c8d7d0;border-radius:9px;padding:10px;font:14px Arial;background:#fff}
+textarea{min-height:90px;resize:vertical}.raw{min-height:230px;font-family:Consolas,monospace;font-size:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer}
+.primary{background:var(--g);color:#fff}.secondary{background:#e6f2ec;color:var(--g)}.ghost{background:#fff;border:1px solid var(--line)}
+.status{font-size:12px;color:var(--muted);line-height:1.5;margin-top:9px}.ok{color:var(--g);font-weight:700}.hidden{display:none}
+.summary{white-space:pre-wrap;background:#f8fbf9;border:1px dashed #b7cbc1;padding:13px;border-radius:11px;font-size:13px;line-height:1.55}
+@media(max-width:850px){.grid,.row,.row3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>CAMPAGNA EMAIL — PROVA PUBBLICATA</h1><p>Annuncio → estrazione dati → preparazione email</p></header>
+<div class="wrap"><div class="grid">
+<section class="card full">
+<h2>1. Annuncio</h2>
+<div class="row">
+<div><label>Link annuncio</label><input id="url" value="https://lasacraimmobiliare.it/products/attivita-bar-ristorante-tabacchi-lotto?variant=54948713136455"></div>
+<div><label>Tipo immobile / attività (facoltativo)</label>
+<select id="tipo"><option value="">— non specificato —</option><option>Condominio</option><option>Appartamento</option><option>Villa</option><option>Casa indipendente</option><option>Bifamiliare</option><option>Rustico</option><option>Terreno</option><option>Negozio</option><option>Locale commerciale</option><option>Capannone</option><option value="ALTRO">Altro</option></select>
+<input id="altro" class="hidden" style="margin-top:7px" placeholder="Specifica altra tipologia"></div></div>
+<label>Testo grezzo annuncio — prova estrazione</label>
+<textarea id="raw" class="raw" placeholder="Incolla qui il testo dell'annuncio"></textarea>
+<div class="btns"><button class="secondary" onclick="loadDemo()">PROVA AVIGLIANA</button><button class="primary" onclick="extractData()">ESTRAI DATI</button><button class="ghost" onclick="clearAll()">AZZERA</button></div>
+<div id="status" class="status">Premi PROVA AVIGLIANA, poi ESTRAI DATI.</div>
+</section>
+
+<section class="card"><h2>2. Dati estratti</h2>
+<label>Titolo</label><input id="titolo">
+<div class="row3"><div><label>Prezzo</label><input id="prezzo"></div><div><label>Mq</label><input id="mq"></div><div><label>Bagni</label><input id="bagni"></div></div>
+<div class="row"><div><label>Comune</label><input id="comune"></div><div><label>Disponibilità</label><input id="disponibilita"></div></div>
+<div class="row3"><div><label>Giardino</label><input id="giardino"></div><div><label>Ascensore</label><input id="ascensore"></div><div><label>Terrazzo</label><input id="terrazzo"></div></div>
+<div class="row"><div><label>Riscaldamento</label><input id="riscaldamento"></div><div><label>Arredato</label><input id="arredato"></div></div>
+<div class="row3"><div><label>Classe</label><input id="classe"></div><div><label>Anno</label><input id="anno"></div><div><label>Impianto</label><input id="impianto"></div></div>
+<label>Descrizione utile</label><textarea id="descrizione"></textarea>
+</section>
+
+<section class="card"><h2>3. Media + Email</h2>
+<label>Video</label><input id="video">
+<label>Foto trovate</label><input id="foto" readonly>
+<label>Oggetto email</label><input id="oggetto">
+<label>Testo email</label><textarea id="email" style="min-height:300px"></textarea>
+<div class="btns"><button class="primary" onclick="generateEmail()">GENERA EMAIL</button><button class="secondary" onclick="copyEmail()">COPIA TESTO</button></div>
+<div class="status">Modalità test: nessuna email viene inviata.</div>
+</section>
+
+<section class="card full"><h2>4. Risultato</h2><div id="summary" class="summary">Nessuna estrazione eseguita.</div></section>
+</div></div>
+<script>
+var demo = "AVIGLIANA ATTIVITA' BAR RISTORANTE TABACCHI LOTTO\n€150.000,00 EUR\nLIBERO DA SETTEMBRE 27\nMq 350\nBAGNO 2\nGIARDINO NO\nRISCALDAMENTO AUTONOMO\nASCENSORE NO\nTERRAZZO NO\nARREDATO COMPLETO\n\nAttività commerciale consolidata ad Avigliana con oltre 30 anni di storia e clientela affezionata. Bar, ristorante e tabacchi compresa di arredo situati in zona di passaggio strategica che garantisce flusso costante di avventori.\nGestione provata e redditizia, pronta per il passaggio generazionale. Ideale per chi cerca un'attività già strutturata con potenziale di crescita. Vendita motivata dal raggiungimento dell'età pensionabile del titolare.\nOpportunità rara per chi desidera entrare nel settore con una base solida e una location privilegiata.\n\nhttps://youtu.be/5SYdg9thjKM?feature=shared\n\nClasse energetica\nE\nAnno di costruzione:\n2.000\nTipo impianto:\nmetano\nTipo alimentazione:\nRADIATORI\n\nhttps://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_10_50_22.png?v=1\nhttps://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_10_51_28.png?v=1\nhttps://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-09-08at10.47.51_4.jpg?v=1";
+document.getElementById("tipo").addEventListener("change",function(){document.getElementById("altro").classList.toggle("hidden",this.value!=="ALTRO")});
+function setv(id,v){document.getElementById(id).value=v||""}
+function val(id){return document.getElementById(id).value.trim()}
+function getm(t,r){var m=t.match(r);return m?String(m[1]||"").trim():""}
+function loadDemo(){setv("raw",demo);setv("tipo","ALTRO");document.getElementById("altro").classList.remove("hidden");setv("altro","Attività bar / ristorante / tabacchi / lotto");document.getElementById("status").innerHTML='<span class="ok">Demo caricata. Premi ESTRAI DATI.</span>'}
+function extractData(){
+ var t=val("raw");if(!t){alert("Incolla il testo dell'annuncio");return}
+ var lines=t.split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);
+ var title=lines.find(function(x){return /ATTIVITA|APPARTAMENTO|VILLA|CASA|CAPANNONE|NEGOZIO|TERRENO|RUSTICO|BIFAMILIARE|CONDOMINIO/i.test(x)&&!/^https?:/i.test(x)})||lines[0]||"";
+ var price=getm(t,/€\s*([\d\.\,]+)/i), mq=getm(t,/\bMq\s*([0-9.,]+)/i), bagni=getm(t,/\bBAGNO(?:I)?\s*([0-9]+)/i);
+ var disp=getm(t,/\b(LIBERO\s+DA\s+[A-ZÀ-Ü]+\s+[0-9]+)/i), giardino=getm(t,/\bGIARDINO\s+([A-ZÀ-Ü0-9]+)/i);
+ var ris=getm(t,/\bRISCALDAMENTO\s+([A-ZÀ-Ü ]+?)(?=\n|$)/i), asc=getm(t,/\bASCENSORE\s+([A-ZÀ-Ü0-9]+)/i);
+ var ter=getm(t,/\bTERRAZZO\s+([A-ZÀ-Ü0-9]+)/i), arr=getm(t,/\bARREDATO\s+([A-ZÀ-Ü ]+?)(?=\n|$)/i);
+ var classe=getm(t,/Classe energetica\s*\n\s*([A-G])/i), anno=getm(t,/Anno di costruzione:\s*\n?\s*([0-9.]+)/i).replace(/\./g,"");
+ var imp=getm(t,/Tipo impianto:\s*\n?\s*([^\n]+)/i);
+ var cm=title.match(/^([A-ZÀ-Ü' -]+?)\s+(?:ATTIVITA|APPARTAMENTO|VILLA|CASA|CAPANNONE|NEGOZIO|TERRENO|RUSTICO|BIFAMILIARE|CONDOMINIO)\b/i);
+ var comune=cm?cm[1].trim():"";
+ var ds=t.search(/Attività commerciale consolidata|Descrizione/i), desc="";
+ if(ds>=0){var ch=t.slice(ds),cut=ch.search(/\nhttps?:\/\/(?:www\.)?(?:youtu\.be|youtube\.com)|\nClasse energetica/i);if(cut>0)ch=ch.slice(0,cut);desc=ch.replace(/^Descrizione\s*/i,"").trim()}
+ var vm=t.match(/https?:\/\/(?:www\.)?(?:youtu\.be|youtube\.com)[^\s)]+/i), video=vm?vm[0]:"";
+ var photos=t.match(/https?:\/\/[^\s)]+?\.(?:png|jpe?g|webp)(?:\?[^\s)]*)?/ig)||[];
+ photos=Array.from(new Set(photos));
+ setv("titolo",title);setv("prezzo",price?"€ "+price:"");setv("mq",mq);setv("bagni",bagni);setv("comune",comune);setv("disponibilita",disp);
+ setv("giardino",giardino);setv("riscaldamento",ris);setv("ascensore",asc);setv("terrazzo",ter);setv("arredato",arr);setv("classe",classe);setv("anno",anno);setv("impianto",imp);setv("descrizione",desc);setv("video",video);setv("foto",photos.length+" foto");
+ document.getElementById("status").innerHTML='<span class="ok">Estrazione completata.</span>';generateEmail();updateSummary(photos.length)
+}
+function tipo(){return val("tipo")==="ALTRO"?val("altro"):val("tipo")}
+function generateEmail(){
+ var c=val("comune"),p=val("prezzo"),mq=val("mq"),tit=val("titolo"),d=val("descrizione"),u=val("url"),tp=tipo()||"opportunità immobiliare/commerciale";
+ setv("oggetto",tp+(c?" a "+c:"")+(p?" — "+p:""));
+ var b="Buongiorno,\n\nvi contatto per segnalarvi una nuova opportunità"+(c?" ad "+c:"")+".\n\n";
+ if(tit)b+=tit+"\n\n";if(p)b+="Prezzo: "+p+"\n";if(mq)b+="Superficie: "+mq+" mq\n";if(val("bagni"))b+="Bagni: "+val("bagni")+"\n";
+ if(val("riscaldamento"))b+="Riscaldamento: "+val("riscaldamento")+"\n";if(val("arredato"))b+="Arredo: "+val("arredato")+"\n";
+ if(val("disponibilita"))b+="Disponibilità: "+val("disponibilita")+"\n";b+="\n";if(d)b+=d+"\n\n";if(val("video"))b+="Video: "+val("video")+"\n\n";if(u)b+="Annuncio completo: "+u+"\n\n";
+ b+="Se può essere di vostro interesse, resto disponibile per ulteriori informazioni.\n\nCordiali saluti";setv("email",b)
+}
+function updateSummary(n){document.getElementById("summary").textContent="TIPO: "+(tipo()||"—")+"\nTITOLO: "+val("titolo")+"\nCOMUNE: "+val("comune")+"\nPREZZO: "+val("prezzo")+"\nSUPERFICIE: "+val("mq")+" mq\nBAGNI: "+val("bagni")+"\nRISCALDAMENTO: "+val("riscaldamento")+"\nARREDATO: "+val("arredato")+"\nCLASSE: "+val("classe")+"\nANNO: "+val("anno")+"\nFOTO TROVATE: "+n}
+async function copyEmail(){try{await navigator.clipboard.writeText(val("email"));alert("Email copiata")}catch(e){alert("Copia non disponibile in questo browser")}}
+function clearAll(){document.querySelectorAll("input,textarea").forEach(function(e){if(e.id!=="url")e.value=""});setv("tipo","");document.getElementById("altro").classList.add("hidden");document.getElementById("summary").textContent="Nessuna estrazione eseguita."}
+</script>
+</body></html>
