@@ -6,6 +6,7 @@ on:
     paths:
       - "dieta/**"
       - "campagna-email-test/**"
+      - "campagna-email-f1/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -44,6 +45,10 @@ jobs:
           # Publish the email campaign as a dedicated subfolder.
           mkdir -p _site/campagna-email-test
           cp -a campagna-email-test/. _site/campagna-email-test/
+
+          # Publish F1 campaign tools.
+          mkdir -p _site/campagna-email-f1
+          cp -a campagna-email-f1/. _site/campagna-email-f1/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
