@@ -92,6 +92,14 @@ let LISTINGS=[];
 function setv(id,v){document.getElementById(id).value=v||""}
 function val(id){return document.getElementById(id).value.trim()}
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function cleanDescription(s){
+  let x=String(s||"").replace(/\s+/g," ").trim();
+  if(/Passa alle informazioni sul prodotto|Apri immagine a schermo intero/i.test(x)){
+    x=x.replace(/^.*?\bARREDATO\b\s*(?:SI|NO)?\s*/i,"");
+  }
+  x=x.split(/\b(?:Punti di forza|CTA WhatsApp|Video disponibile|Classe energetica|Aggiornamento mutui|Calcola il mutuo)\b/i)[0];
+  return x.trim();
+}
 
 async function loadListings(noCache=false){
   const sync=document.getElementById("sync");
@@ -121,7 +129,7 @@ document.getElementById("listing").addEventListener("change",function(){
 function applyListing(i){
   const x=LISTINGS[i]||{};
   setv("titolo",x.title);setv("prezzo",x.price);setv("mq",x.mq);setv("locali",x.locali);setv("bagni",x.bagni);
-  setv("classe",x.classe);setv("anno",x.anno);setv("riscaldamento",x.riscaldamento);setv("descrizione",x.description);
+  setv("classe",x.classe);setv("anno",x.anno);setv("riscaldamento",x.riscaldamento);setv("descrizione",cleanDescription(x.description));
   setv("url",x.url);setv("video",x.video);setv("foto",Array.isArray(x.images)?x.images.length+" foto":"");
   generateEmail();
 }
