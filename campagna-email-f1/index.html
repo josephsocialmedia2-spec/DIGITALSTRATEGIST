@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>F1 Immobiliare — Campagna Valutazione Gratuita</title>
+<style>
+:root{--g:#087443;--g2:#0c9557;--bg:#f3f7f4;--card:#fff;--text:#163127;--muted:#6d7c75;--line:#d6e2dc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+header{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;padding:22px}
+.wrap{max-width:1100px;margin:22px auto;padding:0 16px 42px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px}.full{grid-column:1/-1}
+h1,h2,h3{margin-top:0}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#e8f5ee;color:var(--g);font-size:11px;font-weight:800}
+label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;margin:10px 0 5px;color:#36584b}
+input,textarea{width:100%;border:1px solid #c8d7d0;border-radius:9px;padding:11px;font:14px Arial;background:#fff}
+textarea{min-height:260px;resize:vertical}.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+button,a.btn{border:0;border-radius:9px;padding:11px 15px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}
+.primary{background:var(--g);color:#fff}.secondary{background:#e7f3ed;color:var(--g)}.ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
+.preview{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.head{background:#f4faf6;padding:18px;border-bottom:1px solid var(--line)}
+.body{padding:22px;line-height:1.65}.cta{display:inline-block;background:var(--g);color:#fff!important;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:800}
+.small{font-size:12px;color:var(--muted)}.note{background:#f8fbf9;border:1px dashed #b7cbc1;padding:13px;border-radius:10px;line-height:1.5}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="margin:0 auto;padding:0 16px">
+    <h1 style="margin:0">F1 IMMOBILIARE — CAMPAGNA EMAIL</h1>
+    <p style="margin:6px 0 0">Prima campagna: Valutazione immobiliare gratuita</p>
+  </div>
+</header>
+
+<div class="wrap"><div class="grid">
+<section class="card">
+  <h2>1. Campagna</h2>
+  <div class="pill">VALUTAZIONE IMMOBILIARE GRATUITA</div>
+  <label>Mittente previsto</label>
+  <input value="F1IMMOBILIARESUSA@OUTLOOK.IT" readonly>
+  <label>Oggetto</label>
+  <input id="subject" value="Quanto vale oggi il tuo immobile? Valutazione gratuita">
+  <label>Testo email</label>
+  <textarea id="body">Buongiorno,
+
+stai pensando di vendere casa o vuoi semplicemente conoscere il suo valore attuale?
+
+F1 Immobiliare offre una valutazione immobiliare gratuita e senza impegno.
+
+La valutazione tiene conto delle caratteristiche dell’immobile, della zona, della metratura, dello stato e dei valori di mercato comparabili disponibili.
+
+Puoi richiedere la valutazione compilando il modulo dedicato.
+
+Cordiali saluti
+F1 Immobiliare</textarea>
+  <div class="btns">
+    <button class="primary" onclick="renderPreview()">AGGIORNA ANTEPRIMA</button>
+    <button class="secondary" onclick="copyText()">COPIA TESTO</button>
+    <a class="btn ghost" href="valutazione.html" target="_blank" rel="noopener">APRI MODULO VALUTAZIONE</a>
+  </div>
+</section>
+
+<section class="card">
+  <h2>2. Obiettivo</h2>
+  <div class="note">
+    Questa campagna serve a generare richieste di valutazione da proprietari immobiliari.
+    Il contatto entra nell’archivio centrale con provenienza <strong>F1</strong> e campagna
+    <strong>valutazione-gratuita</strong>. Il consenso marketing F1 resta separato da quello La Sacra.
+  </div>
+  <p class="small">Per ridurre il rischio spam, l’email non usa URL shortener esterni. I collegamenti sono mostrati come pulsanti cliccabili.</p>
+</section>
+
+<section class="card full">
+  <h2>3. Anteprima email</h2>
+  <div class="preview">
+    <div class="head">
+      <span class="pill">F1 IMMOBILIARE</span>
+      <h3 id="previewSubject" style="margin:10px 0 0"></h3>
+    </div>
+    <div id="previewBody" class="body"></div>
+  </div>
+</section>
+</div></div>
+
+<script>
+const FORM_URL="https://josephsocialmedia2-spec.github.io/DIGITALSTRATEGIST/campagna-email-f1/valutazione.html";
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function renderPreview(){
+  const subject=document.getElementById("subject").value.trim();
+  const text=document.getElementById("body").value.trim();
+  document.getElementById("previewSubject").textContent=subject;
+  const paras=text.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+  let html=paras.map(p=>"<p>"+esc(p).replace(/\n/g,"<br>")+"</p>").join("");
+  html+="<p style='margin:24px 0'><a class='cta' href='"+FORM_URL+"' target='_blank' rel='noopener'>RICHIEDI LA VALUTAZIONE GRATUITA</a></p>";
+  html+="<p class='small'>F1 Immobiliare · Richiesta gratuita e senza impegno</p>";
+  document.getElementById("previewBody").innerHTML=html;
+}
+async function copyText(){
+  const text=document.getElementById("body").value+"\n\nRICHIEDI LA VALUTAZIONE GRATUITA: "+FORM_URL;
+  try{await navigator.clipboard.writeText(text);alert("Testo copiato")}
+  catch(e){alert("Copia non disponibile")}
+}
+renderPreview();
+</script>
+</body>
+</html>
