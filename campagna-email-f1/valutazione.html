@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>F1 Immobiliare — Valutazione gratuita</title>
+<style>
+:root{--g:#087443;--g2:#0c9557;--bg:#f3f7f4;--card:#fff;--text:#163127;--muted:#6d7c75;--line:#d6e2dc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+header{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;padding:24px}
+.wrap{max-width:760px;margin:28px auto;padding:0 16px 42px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}
+h1{margin:0}p{line-height:1.55}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:12px;font-weight:800;margin:14px 0 6px}
+input,select,textarea{width:100%;border:1px solid #c8d7d0;border-radius:10px;padding:12px;font:15px Arial;background:#fff}
+textarea{min-height:100px}.check{display:flex;align-items:flex-start;gap:9px;margin-top:16px;font-size:14px;line-height:1.45}.check input{width:auto;margin-top:3px}
+button{width:100%;margin-top:20px;border:0;border-radius:10px;padding:13px 16px;font-weight:800;background:var(--g);color:#fff;cursor:pointer}
+button:disabled{opacity:.6}.muted{font-size:13px;color:var(--muted)}.status{display:none;margin-top:14px;padding:12px;border-radius:10px;background:#f7faf8;font-size:13px}
+.ok{display:block;background:#e8f5ed;color:#087443}.err{display:block;background:#fff0f0;color:#8c1c1c}.honey{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+a{color:var(--g)}@media(max-width:640px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="margin:0 auto;padding:0 16px"><h1>F1 Immobiliare</h1><p style="margin:6px 0 0">Richiedi una valutazione immobiliare gratuita</p></div></header>
+
+<div class="wrap"><div class="card">
+  <p>Compila i dati essenziali dell’immobile. F1 Immobiliare ti ricontatterà per approfondire la valutazione.</p>
+  <form id="form">
+    <div class="row">
+      <div><label for="first_name">Nome *</label><input id="first_name" required autocomplete="given-name"></div>
+      <div><label for="last_name">Cognome *</label><input id="last_name" required autocomplete="family-name"></div>
+    </div>
+    <div class="row">
+      <div><label for="phone">Telefono *</label><input id="phone" required inputmode="tel" autocomplete="tel"></div>
+      <div><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
+    </div>
+
+    <label for="city">Comune dell’immobile *</label>
+    <input id="city" required placeholder="Es. Avigliana">
+
+    <label for="address">Indirizzo dell’immobile</label>
+    <input id="address" placeholder="Via e numero civico">
+
+    <label for="type">Tipo di immobile</label>
+    <select id="type">
+      <option value="">— seleziona —</option>
+      <option>Appartamento</option>
+      <option>Casa indipendente</option>
+      <option>Villa</option>
+      <option>Rustico / cascina</option>
+      <option>Terreno</option>
+      <option>Locale commerciale</option>
+      <option>Altro</option>
+    </select>
+
+    <label for="notes">Informazioni utili</label>
+    <textarea id="notes" placeholder="Mq indicativi, piano, stato, pertinenze o altre informazioni"></textarea>
+
+    <input class="honey" id="website" tabindex="-1" autocomplete="off">
+
+    <div class="check">
+      <input id="privacy" type="checkbox" required>
+      <label for="privacy" style="margin:0;font-weight:400">Dichiaro di aver preso visione dell'<a href="https://f1immobiliare.com/policies/privacy-policy" target="_blank" rel="noopener">informativa privacy</a>.</label>
+    </div>
+
+    <div class="check">
+      <input id="marketing" type="checkbox">
+      <label for="marketing" style="margin:0;font-weight:400">Acconsento a ricevere in futuro comunicazioni commerciali, opportunità e proposte immobiliari tramite email e/o telefono.</label>
+    </div>
+
+    <p class="muted">Il consenso marketing è facoltativo e non è necessario per richiedere la valutazione.</p>
+    <button id="submit" type="submit">RICHIEDI LA VALUTAZIONE GRATUITA</button>
+    <div id="status" class="status"></div>
+  </form>
+</div></div>
+
+<script>
+const API="https://nqnmlsmeiynxbdojeyjt.supabase.co/functions/v1/campaign-contact";
+document.getElementById("form").addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  const btn=document.getElementById("submit"), st=document.getElementById("status");
+  btn.disabled=true; st.className="status"; st.style.display="block"; st.textContent="Invio in corso...";
+  const payload={
+    first_name:document.getElementById("first_name").value,
+    last_name:document.getElementById("last_name").value,
+    phone:document.getElementById("phone").value,
+    email:document.getElementById("email").value,
+    website:document.getElementById("website").value,
+    privacy_ack:document.getElementById("privacy").checked,
+    marketing_consent:document.getElementById("marketing").checked,
+    brand:"f1",
+    campaign_key:"valutazione-gratuita-2026-09",
+    source_url:location.href,
+    property_city:document.getElementById("city").value,
+    property_address:document.getElementById("address").value,
+    property_type:document.getElementById("type").value,
+    notes:document.getElementById("notes").value,
+    property_title:"Richiesta valutazione immobiliare gratuita"
+  };
+  try{
+    const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error||"Invio non riuscito");
+    st.className="status ok"; st.textContent="Richiesta registrata. F1 Immobiliare ti ricontatterà per la valutazione.";
+    e.target.reset();
+  }catch(err){
+    st.className="status err"; st.textContent=err.message||"Errore durante l'invio.";
+  }finally{btn.disabled=false}
+});
+</script>
+</body>
+</html>
