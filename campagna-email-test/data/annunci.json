@@ -1,8 +1,8 @@
 {
   "source": "https://lasacraimmobiliare.it/collections/in-vendita",
   "synced_at": "2026-09-19T15:16:31.123774+00:00",
-  "count": 23,
-  "partial_count": 0,
+  "count": 24,
+  "partial_count": 1,
   "failures": [],
   "items": [
     {
@@ -459,6 +459,24 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200"
       ],
       "partial": false
+    },
+    {
+      "id": "casa-semindipendente-storica-in-vendita-con-vista-sulla-sacra-di-san-michele",
+      "title": "CASA SEMINDIPENDENTE STORICA IN VENDITA CON VISTA SULLA SACRA DI SAN MICHELE",
+      "price": "€100.000,00",
+      "url": "https://lasacraimmobiliare.it/products/casa-semindipendente-storica-in-vendita-con-vista-sulla-sacra-di-san-michele",
+      "description": "",
+      "mq": "",
+      "locali": "",
+      "bagni": "",
+      "classe": "",
+      "anno": "",
+      "impianto": "",
+      "alimentazione": "",
+      "riscaldamento": "",
+      "video": "",
+      "images": [],
+      "partial": true
     },
     {
       "id": "appartamento-in-vendita-a-sant-ambrogio-di-torino-appena-ribassato",
