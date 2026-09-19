@@ -75,6 +75,8 @@ a{color:var(--g)}@media(max-width:640px){.row{grid-template-columns:1fr}}
 
 <script>
 const API="https://nqnmlsmeiynxbdojeyjt.supabase.co/functions/v1/campaign-contact";
+const query=new URLSearchParams(location.search);
+const campaignRecipientToken=query.get("cr")||"";
 document.getElementById("form").addEventListener("submit",async(e)=>{
   e.preventDefault();
   const btn=document.getElementById("submit"), st=document.getElementById("status");
@@ -89,6 +91,7 @@ document.getElementById("form").addEventListener("submit",async(e)=>{
     marketing_consent:document.getElementById("marketing").checked,
     brand:"f1",
     campaign_key:"valutazione-gratuita-2026-09",
+    campaign_recipient_token:campaignRecipientToken,
     source_url:location.href,
     property_city:document.getElementById("city").value,
     property_address:document.getElementById("address").value,
