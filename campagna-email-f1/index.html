@@ -83,6 +83,7 @@ code{font-family:Consolas,monospace;font-size:12px}
   </div>
   <div class="btns">
     <button id="analyzeBtn" class="secondary">ANALIZZA LISTA</button>
+    <button id="crmBtn" class="secondary">CARICA DAL CRM F1</button>
     <button id="importBtn" class="primary" disabled>IMPORTA E CONTROLLA</button>
   </div>
   <div id="localStatus" class="status">Nessuna lista caricata.</div>
@@ -328,6 +329,24 @@ async function logout(){
   $("app").classList.add("hidden");$("loginCard").classList.remove("hidden");
   setStatus("loginStatus","Sessione chiusa.","ok");
 }
+async function loadCrm(){
+  $("crmBtn").disabled=true;
+  try{
+    setStatus("localStatus","Caricamento contatti autorizzati dal CRM F1...","");
+    const d=await api("crm_contacts");
+    const items=Array.isArray(d.items)?d.items:[];
+    const seen=new Set(),out=[];let dupes=0;
+    for(const x of items){
+      const email=String(x.email||"").trim().toLowerCase();
+      if(!emailValid(email))continue;
+      if(seen.has(email)){dupes++;continue}
+      seen.add(email);out.push({email,first_name:x.first_name||"",last_name:x.last_name||""});
+    }
+    updateLocalStats({out,total:items.length,invalid:0,dupes});
+    setStatus("localStatus","CRM F1 caricato: "+out.length+" contatti con consenso F1 attivo.","ok");
+  }catch(e){setStatus("localStatus","Caricamento CRM non riuscito: "+e.message,"err")}
+  finally{$("crmBtn").disabled=false}
+}
 async function importList(){
   if(!parsedRecipients.length)return;
   $("importBtn").disabled=true;
@@ -398,6 +417,7 @@ $("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
 $("logoutBtn").addEventListener("click",logout);
 $("refreshBtn").addEventListener("click",refreshStatus);
 $("analyzeBtn").addEventListener("click",()=>updateLocalStats(normalizeTextList($("emailsText").value)));
+$("crmBtn").addEventListener("click",loadCrm);
 $("emailsText").addEventListener("input",()=>{if($("emailsText").value.trim())updateLocalStats(normalizeTextList($("emailsText").value))});
 $("fileInput").addEventListener("change",e=>parseFile(e.target.files?.[0]));
 $("importBtn").addEventListener("click",importList);
