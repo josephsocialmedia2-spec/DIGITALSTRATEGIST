@@ -1,10 +1,11 @@
-name: Deploy Dieta PWA to GitHub Pages
+name: Deploy DIGITALSTRATEGIST to GitHub Pages
 
 on:
   push:
     branches: ["main"]
     paths:
       - "dieta/**"
+      - "campagna-email-test/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -26,14 +27,29 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Upload diet site
+
+      - name: Build Pages artifact
+        run: |
+          rm -rf _site
+          mkdir -p _site
+
+          # Preserve the existing Dieta site at the Pages root.
+          cp -a dieta/. _site/
+
+          # Publish the email campaign as a dedicated subfolder.
+          mkdir -p _site/campagna-email-test
+          cp -a campagna-email-test/. _site/campagna-email-test/
+
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dieta
+          path: ./_site
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
