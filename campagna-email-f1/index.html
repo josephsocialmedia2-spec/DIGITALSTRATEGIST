@@ -36,6 +36,9 @@ button,a.btn{border:0;border-radius:9px;padding:11px 15px;font-weight:800;cursor
   <div class="pill">VALUTAZIONE IMMOBILIARE GRATUITA</div>
   <label>Mittente previsto</label>
   <input value="F1IMMOBILIARESUSA@OUTLOOK.IT" readonly>
+  <div class="small" style="margin-top:6px">L'invio userà l'account Outlook attualmente aperto nel browser. Accedi a F1IMMOBILIARESUSA@OUTLOOK.IT prima di inviare.</div>
+  <label>Destinatario</label>
+  <input id="recipient" type="email" placeholder="nome@email.it">
   <label>Oggetto</label>
   <input id="subject" value="Quanto vale oggi il tuo immobile? Valutazione gratuita">
   <label>Testo email</label>
@@ -54,6 +57,7 @@ F1 Immobiliare</textarea>
   <div class="btns">
     <button class="primary" onclick="renderPreview()">AGGIORNA ANTEPRIMA</button>
     <button class="secondary" onclick="copyText()">COPIA TESTO</button>
+    <button class="primary" onclick="sendWithOutlook()">INVIA CON OUTLOOK</button>
     <a class="btn ghost" href="valutazione.html" target="_blank" rel="noopener">APRI MODULO VALUTAZIONE</a>
   </div>
 </section>
@@ -97,6 +101,14 @@ async function copyText(){
   const text=document.getElementById("body").value+"\n\nRICHIEDI LA VALUTAZIONE GRATUITA: "+FORM_URL;
   try{await navigator.clipboard.writeText(text);alert("Testo copiato")}
   catch(e){alert("Copia non disponibile")}
+}
+function sendWithOutlook(){
+  const to=document.getElementById("recipient").value.trim();
+  if(!to){alert("Inserisci il destinatario");return}
+  const subject=document.getElementById("subject").value.trim();
+  const text=document.getElementById("body").value.trim()+"\n\nRICHIEDI LA VALUTAZIONE GRATUITA:\n"+FORM_URL;
+  const url="https://outlook.live.com/mail/0/deeplink/compose?to="+encodeURIComponent(to)+"&subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(text);
+  window.open(url,"_blank","noopener");
 }
 renderPreview();
 </script>
