@@ -178,7 +178,6 @@ function generateEmail(){
   document.getElementById("contactBtn").href=contactUrl();
   document.getElementById("previewSubject").textContent=subject;
   let body="";
-  const photo=photoUrl();
   if(photo)body+="<img class='hero-img' src='"+esc(photo)+"' alt='"+esc(tit||"Immobile")+"'>";
   if(tit)body+="<h2 style='margin-top:0'>"+esc(tit)+"</h2>";
   const facts=[p,mq?mq+" mq":"",locali?locali+" locali":"",bagni?bagni+" bagno/i":""].filter(Boolean);
