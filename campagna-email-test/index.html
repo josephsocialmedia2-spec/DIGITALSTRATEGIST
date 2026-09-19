@@ -20,7 +20,7 @@ textarea{min-height:110px;resize:vertical}.row{display:grid;grid-template-column
 .status{font-size:12px;color:var(--muted);line-height:1.5;margin-top:9px}.ok{color:var(--g);font-weight:700}.warn{color:#8a5a00;font-weight:700}
 .summary{white-space:pre-wrap;background:#f8fbf9;border:1px dashed #b7cbc1;padding:13px;border-radius:11px;font-size:13px;line-height:1.55}
 .preview{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.preview-head{background:#f5faf7;padding:18px;border-bottom:1px solid var(--line)}
-.preview-body{padding:20px;line-height:1.6}.cta{display:inline-block;background:var(--g);color:#fff!important;text-decoration:none;padding:11px 16px;border-radius:8px;font-weight:800;margin:8px 0}
+.preview-body{padding:20px;line-height:1.6}.hero-img{display:block;width:100%;max-height:460px;object-fit:cover;border-radius:12px;margin:0 0 18px}.cta{display:inline-block;background:var(--g);color:#fff!important;text-decoration:none;padding:11px 16px;border-radius:8px;font-weight:800;margin:8px 0}
 .small{font-size:12px;color:var(--muted)}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#e9f5ef;color:#0b6b45;font-size:11px;font-weight:800}
 @media(max-width:850px){.grid,.row,.row3{grid-template-columns:1fr}}
 </style>
@@ -89,6 +89,7 @@ textarea{min-height:110px;resize:vertical}.row{display:grid;grid-template-column
 <script>
 const FORM_BASE="https://josephsocialmedia2-spec.github.io/DIGITALSTRATEGIST/campagna-email-test/ricontatto.html";
 let LISTINGS=[];
+let CURRENT_LISTING=null;
 
 function setv(id,v){document.getElementById(id).value=v||""}
 function val(id){return document.getElementById(id).value.trim()}
@@ -129,10 +130,18 @@ document.getElementById("listing").addEventListener("change",function(){
 
 function applyListing(i){
   const x=LISTINGS[i]||{};
+  CURRENT_LISTING=x;
   setv("titolo",x.title);setv("prezzo",x.price);setv("mq",x.mq);setv("locali",x.locali);setv("bagni",x.bagni);
   setv("classe",x.classe);setv("anno",x.anno);setv("riscaldamento",x.riscaldamento);setv("descrizione",cleanDescription(x.description));
   setv("url",x.url);setv("video",x.video);setv("foto",Array.isArray(x.images)?x.images.length+" foto":"");
   generateEmail();
+}
+
+function photoUrl(){
+  if(CURRENT_LISTING && Array.isArray(CURRENT_LISTING.images) && CURRENT_LISTING.images.length){
+    return CURRENT_LISTING.images[0] || "";
+  }
+  return "";
 }
 
 function contactUrl(){
@@ -157,6 +166,8 @@ function generateEmail(){
   if(val("riscaldamento"))b+="Riscaldamento: "+val("riscaldamento")+"\n";
   if(val("classe"))b+="Classe energetica: "+val("classe")+"\n";
   if(d)b+="\n"+d+"\n";
+  const photo=photoUrl();
+  if(photo)b+="\nFoto principale: "+photo+"\n";
   if(u)b+="\nAnnuncio completo: "+u+"\n";
   if(v)b+="Video: "+v+"\n";
   b+="\nSe sta pensando di vendere la propria abitazione o altri immobili di proprietà, può richiedere di essere ricontattato.\n";
@@ -167,6 +178,8 @@ function generateEmail(){
   document.getElementById("contactBtn").href=contactUrl();
   document.getElementById("previewSubject").textContent=subject;
   let body="";
+  const photo=photoUrl();
+  if(photo)body+="<img class='hero-img' src='"+esc(photo)+"' alt='"+esc(tit||"Immobile")+"'>";
   if(tit)body+="<h2 style='margin-top:0'>"+esc(tit)+"</h2>";
   const facts=[p,mq?mq+" mq":"",locali?locali+" locali":"",bagni?bagni+" bagno/i":""].filter(Boolean);
   if(facts.length)body+="<p><strong>"+facts.map(esc).join(" · ")+"</strong></p>";
