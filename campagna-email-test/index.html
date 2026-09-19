@@ -90,6 +90,14 @@ textarea{min-height:110px;resize:vertical}.row{display:grid;grid-template-column
 const FORM_BASE="https://josephsocialmedia2-spec.github.io/DIGITALSTRATEGIST/campagna-email-test/ricontatto.html";
 let LISTINGS=[];
 let CURRENT_LISTING=null;
+const SHORT_LINKS={
+  "attivita-bar-ristorante-tabacchi-lotto":{
+    listing:"https://linkly.link/2tfeM",
+    photo:"https://linkly.link/2tfeN",
+    callback:"https://linkly.link/2tfeP",
+    video:"https://linkly.link/2tfeQ"
+  }
+};
 
 function setv(id,v){document.getElementById(id).value=v||""}
 function val(id){return document.getElementById(id).value.trim()}
@@ -146,14 +154,32 @@ function applyListing(i){
   generateEmail();
 }
 
-function photoUrl(){
+function shortSet(){
+  return CURRENT_LISTING && SHORT_LINKS[CURRENT_LISTING.id] ? SHORT_LINKS[CURRENT_LISTING.id] : null;
+}
+function photoDirectUrl(){
   if(CURRENT_LISTING && Array.isArray(CURRENT_LISTING.images) && CURRENT_LISTING.images.length){
     return CURRENT_LISTING.images[0] || "";
   }
   return "";
 }
+function photoUrl(){
+  const s=shortSet();
+  return s?.photo || photoDirectUrl();
+}
+function listingUrl(){
+  const s=shortSet();
+  return s?.listing || val("url");
+}
+function videoUrl(){
+  const s=shortSet();
+  if(s?.video) return s.video;
+  return val("video");
+}
 
 function contactUrl(){
+  const s=shortSet();
+  if(s?.callback) return s.callback;
   const u=new URL(FORM_BASE);
   u.searchParams.set("brand","la_sacra");
   if(val("url"))u.searchParams.set("property",val("url"));
@@ -162,7 +188,7 @@ function contactUrl(){
 }
 
 function generateEmail(){
-  const tit=val("titolo"), p=val("prezzo"), mq=val("mq"), locali=val("locali"), bagni=val("bagni"), d=val("descrizione"), u=val("url"), v=val("video");
+  const tit=val("titolo"), p=val("prezzo"), mq=val("mq"), locali=val("locali"), bagni=val("bagni"), d=val("descrizione"), u=listingUrl(), v=videoUrl();
   const subject=(tit||"Nuova opportunità immobiliare")+(p?" — "+p:"");
   setv("oggetto",subject);
   let b="Buongiorno,\n\n";
@@ -176,23 +202,25 @@ function generateEmail(){
   if(val("classe"))b+="Classe energetica: "+val("classe")+"\n";
   if(d)b+="\n"+d+"\n";
   const photo=photoUrl();
-  if(photo)b+="\nFoto principale: "+photo+"\n";
-  if(u)b+="\nAnnuncio completo: "+u+"\n";
-  if(v)b+="Video: "+v+"\n";
+  if(photo)b+="\nFOTO: "+photo+"\n";
+  if(u)b+="VEDI IMMOBILE: "+u+"\n";
+  if(v)b+="VIDEO: "+v+"\n";
   b+="\nSe sta pensando di vendere la propria abitazione o altri immobili di proprietà, può richiedere di essere ricontattato.\n";
-  b+="Richiedi ricontatto: "+contactUrl()+"\n";
+  b+="ESSERE RICONTATTATO: "+contactUrl()+"\n";
   b+="\nCordiali saluti\nImmobiliare La Sacra";
   setv("email",b);
 
   document.getElementById("contactBtn").href=contactUrl();
   document.getElementById("previewSubject").textContent=subject;
   let body="";
-  if(photo)body+="<img class='hero-img' src='"+esc(photo)+"' alt='"+esc(tit||"Immobile")+"'>";
+  const directPhoto=photoDirectUrl();
+  if(directPhoto)body+="<a href='"+esc(photoUrl())+"' target='_blank' rel='noopener'><img class='hero-img' src='"+esc(directPhoto)+"' alt='"+esc(tit||"Immobile")+"'></a>";
   if(tit)body+="<h2 style='margin-top:0'>"+esc(tit)+"</h2>";
   const facts=[p,mq?mq+" mq":"",locali?locali+" locali":"",bagni?bagni+" bagno/i":""].filter(Boolean);
   if(facts.length)body+="<p><strong>"+facts.map(esc).join(" · ")+"</strong></p>";
   if(d)body+="<p>"+esc(d)+"</p>";
-  if(u)body+="<p><a class='cta' href='"+esc(u)+"' target='_blank'>VEDI L'IMMOBILE</a></p>";
+  if(u)body+="<p><a class='cta' href='"+esc(u)+"' target='_blank' rel='noopener'>VEDI L'IMMOBILE</a></p>";
+  if(v)body+="<p><a href='"+esc(v)+"' target='_blank' rel='noopener'>▶ GUARDA IL VIDEO</a></p>";
   body+="<hr style='border:0;border-top:1px solid #d8e3de;margin:22px 0'>";
   body+="<p><strong>Sta pensando di vendere la sua abitazione o altri immobili di proprietà?</strong><br>Può richiedere di essere ricontattato.</p>";
   body+="<p><a class='cta' href='"+esc(contactUrl())+"' target='_blank'>ESSERE RICONTATTATO</a></p>";
