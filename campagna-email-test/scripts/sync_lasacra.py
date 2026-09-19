@@ -171,6 +171,10 @@ def extract_product(url, fallback_title="", fallback_price=""):
                 break
         if video:
             break
+    if not video:
+        vm = re.search(r"https?://(?:www\\.)?(?:youtu\\.be/[^\\s<>\"']+|youtube\\.com/[^\\s<>\"']+)", text, re.I)
+        if vm:
+            video = vm.group(0).rstrip(".,);]")
 
     images = []
     seen_base = set()
