@@ -9,6 +9,9 @@ BASE = "https://lasacraimmobiliare.it"
 COLLECTION = BASE + "/collections/in-vendita"
 OUT = "campagna-email-test/data/annunci.json"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; CampaignSync/1.1)"}
+EXTRA_PRODUCT_URLS = [
+    "https://lasacraimmobiliare.it/products/attivita-bar-ristorante-tabacchi-lotto?variant=54948713136455"
+]
 
 def clean(s):
     return re.sub(r"\s+", " ", s or "").strip()
@@ -44,6 +47,7 @@ def extract_product(url, fallback_title="", fallback_price=""):
     title = clean(h1.get_text(" ", strip=True)) if h1 else fallback_title
     canonical = soup.find("link", rel="canonical")
     canonical_url = strip_query(canonical.get("href") if canonical else url)
+    public_url = url if "variant=" in url else canonical_url
 
     price = ""
     price_meta = soup.find("meta", attrs={"property":"product:price:amount"})
@@ -187,7 +191,7 @@ def extract_product(url, fallback_title="", fallback_price=""):
     handle = canonical_url.rstrip("/").split("/")[-1]
     return {
         "id": handle, "title": title or fallback_title, "price": price,
-        "url": canonical_url, "description": description, "mq": mq,
+        "url": public_url, "description": description, "mq": mq,
         "locali": locali, "bagni": bagni, "classe": classe, "anno": anno,
         "impianto": impianto, "alimentazione": alimentazione,
         "riscaldamento": riscaldamento, "video": video, "images": images,
@@ -213,13 +217,21 @@ def main():
         price = "€"+pm.group(1) if pm else ""
         products[url] = {"title": title, "price": price}
 
+    for extra in EXTRA_PRODUCT_URLS:
+        base = strip_query(extra)
+        if base not in products:
+            products[base] = {"title": "", "price": "", "fetch_url": extra}
+        else:
+            products[base]["fetch_url"] = extra
+
     items = []
     failures = []
     urls = list(products.keys())
     for i, url in enumerate(urls, 1):
         meta = products[url]
+        fetch_url = meta.get("fetch_url", url)
         try:
-            item = extract_product(url, meta["title"], meta["price"])
+            item = extract_product(fetch_url, meta["title"], meta["price"])
             items.append(item)
             print(f"[{i}/{len(urls)}] {item['title']}")
         except Exception as exc:
