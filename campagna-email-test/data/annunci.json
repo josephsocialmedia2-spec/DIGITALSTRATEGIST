@@ -1,7 +1,9 @@
 {
   "source": "https://lasacraimmobiliare.it/collections/in-vendita",
-  "synced_at": "2026-09-19T15:14:24.572316+00:00",
+  "synced_at": "2026-09-19T15:16:31.123774+00:00",
   "count": 23,
+  "partial_count": 0,
+  "failures": [],
   "items": [
     {
       "id": "trilocale-con-terrazzo-e-box-a-caprie",
@@ -34,12 +36,13 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage30apr2026_17_24_39.png?v=1777565099&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage30apr2026_17_23_23.png?v=1777565099&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage30apr2026_17_22_13.png?v=1777565099&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage30apr2026_17_47_53.png?v=1777565099&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage30apr2026_17_46_09.png?v=1777565099&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage30apr2026_17_43_30.png?v=1777565099&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage30apr2026_17_41_07.png?v=1777565099&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage30apr2026_17_39_35.png?v=1777565099&width=1024"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "appartamento-4-locali-in-vendita-a-torino-con-box-auto",
@@ -77,7 +80,8 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-04-07at08.53.29_4.jpg?v=1775632905&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-04-07at08.53.29_7.jpg?v=1775632905&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-04-07at08.53.29_8.jpg?v=1775632906&width=3840"
-      ]
+      ],
+      "partial": false
     },
     {
       "id": "bilocale-in-vendita-a-sant-ambrogio-disponibile-subito",
@@ -106,16 +110,17 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3986.jpg?v=1774880418&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3993.jpg?v=1774880419&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3994.jpg?v=1774880418&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3996.jpg?v=1774880418&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3980.jpg?v=1774880418&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3981.jpg?v=1774880418&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3988.jpg?v=1774880418&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3988_1.jpg?v=1774880418&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3987.jpg?v=1774880418&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3984.jpg?v=1774880418&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3986.jpg?v=1774880418&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3993.jpg?v=1774880419&width=1024"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-garage-50.png?v=1764777530&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "casa-ristrutturata-in-vendita-con-cortile-privato-e-arredo-incluso",
@@ -145,15 +150,16 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/Bagno_1.png?v=1774693449&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/Bagno1_4ed5bee2-b904-4528-99c0-d94d95b8257d.png?v=1774693449&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/CORTILE.jpg?v=1774693466&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ESTERNOE.jpg?v=1774693460&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/Cucina_1.png?v=1774693449&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/Cucinatradizionaleconarredamentoinlegno.png?v=1774693450&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/Soggiorno1.png?v=1774693449&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/Salotto.png?v=1774693449&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/cameretta1.png?v=1774693450&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/Cameradaletto1a.png?v=1774693449&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/cameradaletto.png?v=1774693449&width=1024"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-garage-50.png?v=1764777530&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "villa-indipendente-in-vendita-a-sant-ambrogio-di-torino-con-giardino-privato",
@@ -191,7 +197,8 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/Esterno3.jpg?v=1768467807&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/Esterno4.jpg?v=1768467808&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/Esterno5.jpg?v=1768467808&width=3840"
-      ]
+      ],
+      "partial": false
     },
     {
       "id": "appartamento-in-vendita-a-villar-dora-libero-subito-con-cortile-privato",
@@ -225,11 +232,12 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/Cortile_con_struttura_metallica_vuota.png?v=1769588050&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/Cucina_vintage_con_dettagli_moderni.png?v=1769588050&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/Uomo_sorridente_su_balcone_verde.png?v=1769587994&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-10_at_11.04.27_9.jpg?v=1769588050&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/Stanza_luminosa_con_dettagli_in_legno.png?v=1769588050&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/Camera_da_letto_elegante_e_luminosa_8a8c8083-ae5e-407b-95ef-9cf4dd976954.png?v=1769588050&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/Bagno_vintage_con_piastrelle_solari.png?v=1769588050&width=1024"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "terreno-edificabile-in-vendita-a-sant-ambrogio-di-torino-di-10-000-mq",
@@ -253,11 +261,6 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3483.jpg?v=1768990571&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3482.jpg?v=1768990571&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/terrenovalle.jpg?v=1768990571&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3481.jpg?v=1768990571&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3480.jpg?v=1768990571&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3483.jpg?v=1768990571&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_3482.jpg?v=1768990571&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/terrenovalle.jpg?v=1768990571&width=1024",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
@@ -266,8 +269,10 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/icons8-garage-50.png?v=1764777530&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "bilocale-in-vendita-a-sant-ambrogio",
@@ -296,9 +301,9 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_9_9f1d6bd3-112b-4100-925c-7ddf80182abb.jpg?v=1767697941&width=1200"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "casa-in-vendita-a-sant-ambrogio-con-doppia-esposizione-e-riscaldamento-autonomo",
@@ -326,17 +331,18 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_7_504f1f62-b4f6-47c3-b7c8-4c54e43bf293.jpg?v=1765899677&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_8_b3b03fd7-a603-413e-bac2-bd01c1b26773.jpg?v=1765899677&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_aa3ed2a1-ec49-4756-a3c5-858d8474f85d.jpg?v=1765899677&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_1_de28af36-f12e-48b9-8fbc-ec8ac66841c0.jpg?v=1765899677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_2_189ab922-a85d-4cb6-bf39-991067c36937.jpg?v=1765899677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_3_46164f6e-64a2-484b-87e1-0d387c689cc1.jpg?v=1765899677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_4_7ed732e4-46e4-4b38-a624-d739f45972fd.jpg?v=1765899677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_5_f782de6a-c8e5-46e3-bb09-6be49bcaf31d.jpg?v=1765899677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_6_159c8d11-5377-4e60-ac3f-70c975f7ad12.jpg?v=1765899677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_7_504f1f62-b4f6-47c3-b7c8-4c54e43bf293.jpg?v=1765899677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_8_b3b03fd7-a603-413e-bac2-bd01c1b26773.jpg?v=1765899677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_aa3ed2a1-ec49-4756-a3c5-858d8474f85d.jpg?v=1765899677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-garage-50.png?v=1764777530&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "appartamento-in-vendita-a-sant-ambrogio-di-torino-in-piazza-del-comune",
@@ -372,9 +378,10 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG-20251110-WA0027.jpg?v=1767697472&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG-20251110-WA0028.jpg?v=1767697472&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG-20251110-WA0029.jpg?v=1767697472&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-01-06at12.01.49.jpg?v=1767697400&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-06_at_12.01.49.jpg?v=1767697472&width=1024"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "magazzino-in-vendita-a-sant-ambrogio-di-torino-di-40-mq",
@@ -401,18 +408,18 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_1.jpg?v=1770198677&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_2.jpg?v=1770198678&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_3.jpg?v=1770198677&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_1_f8a7fb59-a601-4172-9d85-b5252331770f.jpg?v=1765896201&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_2_83a84adc-4343-4955-aa99-0095ab6ed175.jpg?v=1765896201&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_3_52d16378-3964-4df1-ae1e-f9cff404b600.jpg?v=1765896201&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_0089.jpg?v=1770198679&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_0091.jpg?v=1770198679&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_1.jpg?v=1770198677&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_2.jpg?v=1770198678&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_3.jpg?v=1770198677&width=1024",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
-        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-garage-50.png?v=1764777530&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "appartamento-in-vendita-a-caprie-ultimo-piano-con-ascensore",
@@ -440,17 +447,18 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_7_5c8effa9-153c-4294-898b-f1b98e5cb5f8.jpg?v=1765901610&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_11.jpg?v=1765901610&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_8fa3fd8f-c7a6-4628-bcce-6c42e2b41df6.jpg?v=1765901610&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_1_7534c855-a770-401d-b967-4032e8d2c55e.jpg?v=1765901610&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_2_09f04cf5-7032-47e6-a9f0-eef1accf650e.jpg?v=1765901610&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_3_20d0591e-abe3-4dd2-9d29-32750d782f6b.jpg?v=1765901610&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_4_062619d1-4eef-4d6a-83cf-7651f2ea3d17.jpg?v=1765901609&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_5_357c3173-3be3-4fc2-a9ff-f67458706a44.jpg?v=1765901610&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_6_e4e9849b-e014-443a-ac4e-a4b60ccc54dc.jpg?v=1765901610&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_7_5c8effa9-153c-4294-898b-f1b98e5cb5f8.jpg?v=1765901610&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_11.jpg?v=1765901610&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_8fa3fd8f-c7a6-4628-bcce-6c42e2b41df6.jpg?v=1765901610&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-garage-50.png?v=1764777530&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "appartamento-in-vendita-a-sant-ambrogio-di-torino-appena-ribassato",
@@ -488,7 +496,8 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG-20250816-WA0036.jpg?v=1766504474&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG-20250816-WA0038-Copia.jpg?v=1765902271&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/ImmagineWhatsApp2025-08-16ore16.28.14_b0c9d303.jpg?v=1765902271&width=3840"
-      ]
+      ],
+      "partial": false
     },
     {
       "id": "appartamento-in-affitto-a-caprie-con-mansarda-e-box-doppio",
@@ -517,16 +526,17 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_7_05c5a258-d751-47f1-83ee-8cd59dd39937.jpg?v=1766504519&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_9_d6b3f7ac-c945-4627-a0f5-448d7b039eac.jpg?v=1765902574&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_40cbd16d-65fc-4f0d-b013-366fe17bbd7b.jpg?v=1765902574&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_8_2a5395c7-2bf1-4738-8371-f0b8dd41af67.jpg?v=1766504519&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_1_8c08b780-148c-4856-a7ed-544ee92bb0c2.jpg?v=1766504519&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_2_68cbd587-2778-4b6e-b5af-aa1b267ab758.jpg?v=1766504519&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_3_f7e83e8d-2342-4f14-b470-728c0073ae26.jpg?v=1766504519&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_4_e2edf2c0-2f4f-4a5e-b1d5-3241bcf913c1.jpg?v=1766504519&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_5_05922139-18c7-4adf-9ba3-c1d61bf044cf.jpg?v=1766504519&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_6_14b31579-268f-4c38-8f5a-14ab116a155d.jpg?v=1766504519&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_7_05c5a258-d751-47f1-83ee-8cd59dd39937.jpg?v=1766504519&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_9_d6b3f7ac-c945-4627-a0f5-448d7b039eac.jpg?v=1765902574&width=1024"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-garage-50.png?v=1764777530&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "appartamento-in-vendita-a-torino-zona-via-onorato-vigliani-ultimo-piano",
@@ -563,8 +573,9 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/Cucina_luminosa_con_tavolo_in_legno_a7e4701a-b677-4a63-b5ac-bf32ab5fa99f.png?v=1776755718&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/Bagno_moderno_con_accenti_turchesi.png?v=1776755718&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/Camera_della_deposizione_minimalista.png?v=1776755718&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_13_lug_2026_09_46_36.png?v=1783928961&width=1024"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "casa-semindipendente-in-affitto-a-sant-ambrogio-con-corte-esclusiva",
@@ -602,7 +613,8 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_13_ec597754-182d-4946-8ab9-c4e22249c00f.jpg?v=1765988246&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_06da5d1e-5d7d-4301-8aca-8a965c4c5244.jpg?v=1765988246&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_4497.jpg?v=1765988248&width=3840"
-      ]
+      ],
+      "partial": false
     },
     {
       "id": "casa-semindipendente-in-vendita-ristrutturata-con-cortile-privato",
@@ -629,18 +641,18 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_17.jpg?v=1766504674&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_19.jpg?v=1765989041&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_fd0b92a4-992a-4ec0-8175-7f0de26e3f75.jpg?v=1765989041&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_22_apr_2026_16_22_39.png?v=1776867789&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_18.jpg?v=1766504674&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_14.jpg?v=1766504674&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_15.jpg?v=1766504674&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_16.jpg?v=1766504674&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_17.jpg?v=1766504674&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_19.jpg?v=1765989041&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_fd0b92a4-992a-4ec0-8175-7f0de26e3f75.jpg?v=1765989041&width=1024",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
-        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-garage-50.png?v=1764777530&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "porzione-di-villa-in-vendita-a-sant-ambrogio-con-giardino-e-piscina",
@@ -678,7 +690,8 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_10_-Copia.jpg?v=1766047259&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_10_fcfc5973-95a7-4261-ac46-a4b4c081f8f3.jpg?v=1766047259&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/fotohigh-viewimg_11_-Copia.jpg?v=1766047258&width=3840"
-      ]
+      ],
+      "partial": false
     },
     {
       "id": "bifamiliare-in-vendita-ai-confini-di-avigliana-con-terrazzo-e-giardino-privato",
@@ -716,7 +729,8 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_6991-Copia.jpg?v=1769531441&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_6991.jpg?v=1769531441&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_6993-Copia.jpg?v=1769531441&width=3840"
-      ]
+      ],
+      "partial": false
     },
     {
       "id": "terreno-agricolo-in-vendita-a-sant-ambrogio-di-torino-di-circa-2-000-mq",
@@ -742,19 +756,18 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2913.jpg?v=1766504411&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2911.jpg?v=1766504411&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2916.jpg?v=1766504363&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2912_364add9f-9bbb-4476-b3ef-03eb4df5cebb.jpg?v=1766504550&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2915.jpg?v=1766504411&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2912.jpg?v=1766504411&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2914.jpg?v=1766504411&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2913.jpg?v=1766504411&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2911.jpg?v=1766504411&width=1024",
-        "https://lasacraimmobiliare.it/cdn/shop/files/IMG_2916.jpg?v=1766504363&width=1024",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/icons8-piantina-50.png?v=1764777048&width=1200",
         "https://lasacraimmobiliare.it/cdn/shop/files/icons8-bagno-50.png?v=1764777218&width=1200",
-        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-giardino-50.png?v=1764777436&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-garage-50.png?v=1764777530&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/icons8-termosifone-50.png?v=1764777633&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "appartamento-in-vendita-a-sant-ambrogio-di-torino-con-giardino-privato",
@@ -791,8 +804,9 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/Villa_elegante_sotto_il_sole..png?v=1769590441&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/ESTERNO_2f4b3909-a2e9-43bc-a94a-4e97acdb1597.jpg?v=1769590441&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-05-06_at_10.52.38.jpg?v=1778057710&width=3840",
-        "https://lasacraimmobiliare.it/cdn/shop/files/Casa_con_giardino_e_portico_solare.png?v=1769417194&width=1024"
-      ]
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200"
+      ],
+      "partial": false
     },
     {
       "id": "appartamento-in-vendita-a-sant-antonino-di-susa-con-terrazzo",
@@ -830,7 +844,8 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-02_at_13.21.11.jpg?v=1769502372&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-02_at_13.12.19_16.jpg?v=1769502372&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-02_at_13.12.20_2.jpg?v=1769502372&width=3840"
-      ]
+      ],
+      "partial": false
     },
     {
       "id": "casa-indipendente-in-vendita-a-santambrogio-di-torino-con-terrazzo-e-giardino",
@@ -868,7 +883,8 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-04_at_11.57.00.jpg?v=1767525666&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-04_at_11.57.04_2.jpg?v=1767525666&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-04_at_11.57.04_4.jpg?v=1767525597&width=3840"
-      ]
+      ],
+      "partial": false
     }
   ]
 }
