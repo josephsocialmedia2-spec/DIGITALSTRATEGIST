@@ -1,0 +1,39 @@
+name: Sync La Sacra listings
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 5 * * *"
+  push:
+    paths:
+      - "campagna-email-test/scripts/sync_lasacra.py"
+      - ".github/workflows/sync-lasacra-listings.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install --upgrade requests beautifulsoup4
+      - name: Read listings from La Sacra Immobiliare
+        run: python campagna-email-test/scripts/sync_lasacra.py
+      - name: Commit changes
+        run: |
+          git config user.name "f1-campaign-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add campagna-email-test/data/annunci.json
+          if git diff --cached --quiet; then
+            echo "No listing changes"
+          else
+            git commit -m "chore: sync La Sacra listings"
+            git push
+          fi
