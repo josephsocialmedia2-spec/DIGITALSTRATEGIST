@@ -58,26 +58,85 @@ def extract_product(url, fallback_title="", fallback_price=""):
     if not price:
         price = fallback_price
 
+    # Description: prefer structured Product JSON-LD. Never use the first generic .rte,
+    # because Shopify themes can wrap gallery/accessibility text inside it.
     description = ""
-    for sel in [".product__description", ".product-description", ".rte"]:
-        el = soup.select_one(sel)
-        if el:
-            candidate = clean(el.get_text(" ", strip=True))
-            if len(candidate) > 80:
+    def find_product_description(obj):
+        if isinstance(obj, dict):
+            typ = obj.get("@type")
+            types = typ if isinstance(typ, list) else [typ]
+            if "Product" in types and obj.get("description"):
+                return obj.get("description")
+            for value in obj.values():
+                found = find_product_description(value)
+                if found:
+                    return found
+        elif isinstance(obj, list):
+            for value in obj:
+                found = find_product_description(value)
+                if found:
+                    return found
+        return ""
+
+    for script in soup.find_all("script", attrs={"type":"application/ld+json"}):
+        raw = script.string or script.get_text("", strip=True)
+        if not raw:
+            continue
+        try:
+            obj = json.loads(raw)
+            raw_desc = find_product_description(obj)
+            if raw_desc:
+                description = clean(BeautifulSoup(str(raw_desc), "html.parser").get_text(" ", strip=True))
+                if len(description) >= 40:
+                    break
+        except Exception:
+            pass
+
+    # Fallback tailored to La Sacra product pages:
+    # take only the real editorial block after ARREDATO and stop before
+    # points/CTA/energy/mortgage sections.
+    if not description or "Passa alle informazioni sul prodotto" in description:
+        lines = [clean(x) for x in text.splitlines() if clean(x)]
+        start = -1
+        for idx, line in enumerate(lines):
+            if re.match(r"^ARREDATO(?:\\s|$)", line, re.I):
+                start = idx
+        if start < 0:
+            for label in ("TERRAZZO", "ASCENSORE", "RISCALDAMENTO", "GARAGE", "GIARDINO", "BAGNO", "LOCALI"):
+                for idx, line in enumerate(lines):
+                    if re.match(r"^" + label + r"(?:\\s|$)", line, re.I):
+                        start = max(start, idx)
+
+        stop_markers = (
+            "Punti di forza", "CTA WhatsApp", "Video disponibile",
+            "Classe energetica", "Aggiornamento mutui", "Calcola il mutuo"
+        )
+        end = len(lines)
+        if start >= 0:
+            for idx in range(start + 1, len(lines)):
+                low = lines[idx].lower()
+                if any(marker.lower() in low for marker in stop_markers):
+                    end = idx
+                    break
+            block = lines[start + 1:end]
+            # Remove non-editorial artifacts that can sit between specs and copy.
+            block = [
+                x for x in block
+                if x not in ("Spedizione", "Produzione")
+                and not re.fullmatch(r"\\d{1,2}\\s+[a-zà-ÿ]+\\s+20\\d{2}", x, re.I)
+                and "partner di produzione" not in x.lower()
+            ]
+            candidate = clean(" ".join(block))
+            if len(candidate) >= 40:
                 description = candidate
-                break
-    if not description:
-        paras = []
-        blocked = ("riceverò il mio ordine", "spedizione", "produzione", "partner di produzione", "calcola il mutuo", "tassi indicativi")
-        for p in soup.find_all(["p","div"]):
-            candidate = clean(p.get_text(" ", strip=True))
-            low = candidate.lower()
-            if 90 <= len(candidate) <= 1800 and not any(x in low for x in blocked):
-                if any(k in low for k in ("immobile","appartamento","villa","casa","terreno","locale","proprietà","soluzione","vendita")):
-                    if candidate not in paras:
-                        paras.append(candidate)
-        if paras:
-            description = max(paras, key=len)[:2200]
+
+    # Final safety cleaning if a theme artifact slipped through.
+    description = re.sub(r"^.*?\\bARREDATO\\b\\s*(?:SI|NO)?\\s*", "", description, flags=re.I)
+    description = re.split(
+        r"\\b(?:Punti di forza|CTA WhatsApp|Video disponibile|Classe energetica|Aggiornamento mutui|Calcola il mutuo)\\b",
+        description, maxsplit=1, flags=re.I
+    )[0]
+    description = clean(description)[:2600]
 
     def field(pattern):
         m = re.search(pattern, text, re.I)
