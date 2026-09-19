@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Richiesta di ricontatto</title>
+<style>
+:root{--g:#0b6b45;--g2:#0f8a5a;--bg:#f3f6f4;--card:#fff;--text:#173128;--muted:#6f7c77;--line:#d8e3de}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
+header{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;padding:24px}
+.wrap{max-width:760px;margin:28px auto;padding:0 16px 40px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}
+h1{margin:0;font-size:24px}p{line-height:1.55}.muted{color:var(--muted);font-size:13px}
+label{display:block;font-size:12px;font-weight:800;margin:14px 0 6px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+input{width:100%;border:1px solid #c8d7d0;border-radius:10px;padding:12px;font:15px Arial;background:#fff}
+.check{display:flex;align-items:flex-start;gap:9px;margin-top:16px;font-size:14px;line-height:1.45}.check input{width:auto;margin-top:3px}
+button{width:100%;margin-top:20px;border:0;border-radius:10px;padding:13px 16px;font-weight:800;background:var(--g);color:#fff;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}.status{margin-top:14px;padding:12px;border-radius:10px;background:#f7faf8;font-size:13px}.ok{background:#e8f5ed;color:#0b6b45}.err{background:#fff0f0;color:#8c1c1c}
+.honey{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+a{color:var(--g)}
+@media(max-width:640px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="margin:0 auto;padding:0 16px"><h1 id="brandTitle">Richiesta di ricontatto</h1><p id="brandSub" style="margin:6px 0 0">Lascia i tuoi dati e verrai ricontattato.</p></div></header>
+<div class="wrap">
+  <div class="card">
+    <div id="propertyBox" class="status" style="display:none"></div>
+    <form id="leadForm">
+      <div class="row">
+        <div><label for="first_name">Nome *</label><input id="first_name" required autocomplete="given-name"></div>
+        <div><label for="last_name">Cognome *</label><input id="last_name" required autocomplete="family-name"></div>
+      </div>
+      <label for="phone">Numero di telefono *</label><input id="phone" required inputmode="tel" autocomplete="tel">
+      <label for="email">Email</label><input id="email" type="email" autocomplete="email">
+      <input class="honey" id="website" tabindex="-1" autocomplete="off">
+      <div class="check">
+        <input id="privacy" type="checkbox" required>
+        <label for="privacy" style="margin:0;font-weight:400">Dichiaro di aver preso visione dell'<a id="privacyLink" href="#" target="_blank" rel="noopener">informativa privacy</a>.</label>
+      </div>
+      <div class="check">
+        <input id="marketing" type="checkbox">
+        <label for="marketing" style="margin:0;font-weight:400">Acconsento a ricevere in futuro comunicazioni commerciali, opportunità e proposte immobiliari tramite email e/o telefono.</label>
+      </div>
+      <p class="muted">Il consenso marketing è facoltativo. Puoi richiedere il ricontatto anche senza selezionarlo.</p>
+      <button id="submitBtn" type="submit">RICHIEDI DI ESSERE RICONTATTATO</button>
+      <div id="status" class="status" style="display:none"></div>
+    </form>
+  </div>
+</div>
+<script>
+const API="https://nqnmlsmeiynxbdojeyjt.supabase.co/functions/v1/campaign-contact";
+const q=new URLSearchParams(location.search);
+const brand=q.get("brand")==="f1"?"f1":"la_sacra";
+const propertyUrl=q.get("property")||"";
+const propertyTitle=q.get("title")||"";
+const cfg=brand==="f1"
+  ? {name:"F1 Immobiliare",privacy:"https://f1immobiliare.com/policies/privacy-policy"}
+  : {name:"Immobiliare La Sacra",privacy:"https://lasacraimmobiliare.it/policies/privacy-policy"};
+document.getElementById("brandTitle").textContent=cfg.name+" — Richiesta di ricontatto";
+document.getElementById("brandSub").textContent="Lascia i tuoi dati e verrai ricontattato da "+cfg.name+".";
+document.getElementById("privacyLink").href=cfg.privacy;
+if(propertyTitle||propertyUrl){
+  const box=document.getElementById("propertyBox");
+  box.style.display="block";
+  box.textContent=propertyTitle?("Richiesta relativa a: "+propertyTitle):"Richiesta relativa all'immobile selezionato.";
+}
+document.getElementById("leadForm").addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  const btn=document.getElementById("submitBtn");
+  const st=document.getElementById("status");
+  btn.disabled=true; st.style.display="block"; st.className="status"; st.textContent="Invio in corso...";
+  const payload={
+    first_name:document.getElementById("first_name").value,
+    last_name:document.getElementById("last_name").value,
+    phone:document.getElementById("phone").value,
+    email:document.getElementById("email").value,
+    website:document.getElementById("website").value,
+    privacy_ack:document.getElementById("privacy").checked,
+    marketing_consent:document.getElementById("marketing").checked,
+    brand,
+    source_url:location.href,
+    property_url:propertyUrl,
+    property_title:propertyTitle
+  };
+  try{
+    const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error||"Invio non riuscito");
+    st.className="status ok";
+    st.textContent="Richiesta registrata correttamente. Verrai ricontattato.";
+    e.target.reset();
+  }catch(err){
+    st.className="status err";
+    st.textContent=err.message||"Errore durante l'invio.";
+  }finally{btn.disabled=false}
+});
+</script>
+</body>
+</html>
