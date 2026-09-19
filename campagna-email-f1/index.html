@@ -3,151 +3,406 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>F1 Immobiliare — Campagna Valutazione Gratuita</title>
+<title>F1 Immobiliare — Campagne Email</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
-:root{--g:#087443;--g2:#0c9557;--bg:#f3f7f4;--card:#fff;--text:#163127;--muted:#6d7c75;--line:#d6e2dc}
+:root{--g:#087443;--g2:#0c9557;--bg:#f2f6f3;--card:#fff;--text:#173128;--muted:#687870;--line:#d6e2dc;--red:#9b1c1c;--amber:#946200}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
-header{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;padding:22px}
-.wrap{max-width:1100px;margin:22px auto;padding:0 16px 42px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px}.full{grid-column:1/-1}
-h1,h2,h3{margin-top:0}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#e8f5ee;color:var(--g);font-size:11px;font-weight:800}
-label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;margin:10px 0 5px;color:#36584b}
-input,textarea{width:100%;border:1px solid #c8d7d0;border-radius:9px;padding:11px;font:14px Arial;background:#fff}
-textarea{min-height:260px;resize:vertical}.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+header{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;padding:22px}.wrap{max-width:1240px;margin:20px auto;padding:0 16px 44px}
+h1,h2,h3{margin-top:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.full{grid-column:1/-1}
+label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;margin:11px 0 6px;color:#36584b}
+input,textarea,select{width:100%;border:1px solid #c7d6cf;border-radius:10px;padding:11px;font:14px Arial;background:#fff;color:var(--text)}
+textarea{min-height:190px;resize:vertical}.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 button,a.btn{border:0;border-radius:9px;padding:11px 15px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}
-.primary{background:var(--g);color:#fff}.secondary{background:#e7f3ed;color:var(--g)}.ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
-.preview{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.head{background:#f4faf6;padding:18px;border-bottom:1px solid var(--line)}
-.body{padding:22px;line-height:1.65}.cta{display:inline-block;background:var(--g);color:#fff!important;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:800}
-.small{font-size:12px;color:var(--muted)}.note{background:#f8fbf9;border:1px dashed #b7cbc1;padding:13px;border-radius:10px;line-height:1.5}
-@media(max-width:800px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+button:disabled{opacity:.48;cursor:not-allowed}.primary{background:var(--g);color:#fff}.secondary{background:#e7f3ed;color:var(--g)}.danger{background:#fff0f0;color:var(--red)}.ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
+.small{font-size:12px;color:var(--muted);line-height:1.45}.note{background:#f8fbf9;border:1px dashed #b7cbc1;padding:13px;border-radius:11px;line-height:1.55}
+.status{margin-top:10px;padding:11px;border-radius:10px;background:#f6f8f7;font-size:13px;white-space:pre-wrap}.ok{background:#e9f6ee;color:#075f39}.err{background:#fff0f0;color:#8c1c1c}.warn{background:#fff7df;color:#7d5600}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{background:#f8fbf9;border:1px solid var(--line);border-radius:12px;padding:13px}.stat b{display:block;font-size:24px;color:var(--g);margin-top:5px}.stat span{font-size:11px;font-weight:800;color:#4f645a}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:#e8f5ee;color:var(--g);font-size:11px;font-weight:800}.pill.bad{background:#fff0f0;color:var(--red)}.pill.warn{background:#fff7df;color:var(--amber)}
+.preview{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.preview-head{background:#f4faf6;padding:18px;border-bottom:1px solid var(--line)}.preview-body{padding:22px;line-height:1.6}.preview-body img{display:block;width:100%;max-width:720px;height:auto;border-radius:12px}
+.cta{display:inline-block;background:var(--g);color:#fff!important;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:800}
+.login{max-width:520px;margin:42px auto}.hidden{display:none!important}.progress{height:10px;background:#e5ece8;border-radius:999px;overflow:hidden;margin-top:10px}.progress>div{height:100%;background:var(--g);width:0;transition:width .25s}
+.events{max-height:230px;overflow:auto;font-size:12px}.event{padding:8px 0;border-bottom:1px solid #edf1ef}.filebox{border:2px dashed #b7cbc1;border-radius:12px;padding:16px;text-align:center;background:#fbfdfc}
+code{font-family:Consolas,monospace;font-size:12px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.stats{grid-template-columns:1fr 1fr}.btns>*{width:100%;text-align:center}}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap" style="margin:0 auto;padding:0 16px">
-    <h1 style="margin:0">F1 IMMOBILIARE — CAMPAGNA EMAIL</h1>
-    <p style="margin:6px 0 0">Prima campagna: Valutazione immobiliare gratuita</p>
+    <h1 style="margin:0">F1 IMMOBILIARE — CAMPAGNE EMAIL</h1>
+    <p style="margin:6px 0 0">Importa la lista → controllo automatico → invio autorizzato → lead e report</p>
   </div>
 </header>
 
-<div class="wrap"><div class="grid">
+<div class="wrap">
+<section id="loginCard" class="card login">
+  <h2>Accesso F1</h2>
+  <p class="small">Area riservata. La sessione resta soltanto in memoria del browser e non viene salvata in localStorage.</p>
+  <label>Email</label>
+  <input id="loginEmail" value="F1IMMOBILIARESUSA@OUTLOOK.IT" readonly>
+  <label>Password F1</label>
+  <input id="loginPassword" type="password" autocomplete="current-password">
+  <div class="btns"><button id="loginBtn" class="primary">ENTRA NEL PROGRAMMA</button></div>
+  <div id="loginStatus" class="status hidden"></div>
+</section>
 
+<main id="app" class="hidden">
+<div class="grid">
 <section class="card full">
-  <a href="valutazione.html" target="_blank" rel="noopener" style="display:block;text-decoration:none">
-    <img src="https://nqnmlsmeiynxbdojeyjt.supabase.co/functions/v1/f1-valutazione-banner"
-         alt="F1 Immobiliare - Valutazione immobiliare gratuita"
-         style="display:block;width:100%;height:auto;border-radius:14px">
-  </a>
-  <div class="btns">
-    <a class="btn primary" href="valutazione.html" target="_blank" rel="noopener">RICHIEDI LA VALUTAZIONE GRATUITA</a>
-  </div>
-  <div class="small">La grafica è cliccabile e apre direttamente il modulo di valutazione F1.</div>
-</section>
-
-<section class="card">
-  <h2>1. Campagna</h2>
-  <div class="pill">VALUTAZIONE IMMOBILIARE GRATUITA</div>
-  <label>Mittente previsto</label>
-  <input value="F1IMMOBILIARESUSA@OUTLOOK.IT" readonly>
-  <div class="small" style="margin-top:6px">L'invio userà l'account Outlook attualmente aperto nel browser. Accedi a F1IMMOBILIARESUSA@OUTLOOK.IT prima di inviare.</div>
-  <label>Destinatario</label>
-  <input id="recipient" type="email" placeholder="nome@email.it">
-  <label>Oggetto</label>
-  <input id="subject" value="Quanto vale oggi il tuo immobile? Valutazione gratuita">
-  <label>Testo email</label>
-  <textarea id="body">Buongiorno,
-
-stai pensando di vendere casa o vuoi semplicemente conoscere il suo valore attuale?
-
-F1 Immobiliare offre una valutazione immobiliare gratuita e senza impegno.
-
-La valutazione tiene conto delle caratteristiche dell’immobile, della zona, della metratura, dello stato e dei valori di mercato comparabili disponibili.
-
-Puoi richiedere la valutazione compilando il modulo dedicato.
-
-Cordiali saluti
-F1 Immobiliare</textarea>
-  <div class="btns">
-    <button class="primary" onclick="renderPreview()">AGGIORNA ANTEPRIMA</button>
-    <button class="secondary" onclick="copyText()">COPIA TESTO</button>
-    <button class="secondary" onclick="copyRichEmail()">COPIA EMAIL GRAFICA</button>
-    <button class="primary" onclick="sendWithOutlook()">INVIA CON OUTLOOK</button>
-    <a class="btn ghost" href="valutazione.html" target="_blank" rel="noopener">APRI MODULO VALUTAZIONE</a>
-  </div>
-</section>
-
-<section class="card">
-  <h2>2. Obiettivo</h2>
-  <div class="note">
-    Questa campagna serve a generare richieste di valutazione da proprietari immobiliari.
-    Il contatto entra nell’archivio centrale con provenienza <strong>F1</strong> e campagna
-    <strong>valutazione-gratuita</strong>. Il consenso marketing F1 resta separato da quello La Sacra.
-  </div>
-  <p class="small">Per ridurre il rischio spam, l’email non usa URL shortener esterni. I collegamenti sono mostrati come pulsanti cliccabili.</p>
-</section>
-
-<section class="card full">
-  <h2>3. Anteprima email</h2>
-  <div class="preview">
-    <div class="head">
+  <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+    <div>
       <span class="pill">F1 IMMOBILIARE</span>
-      <h3 id="previewSubject" style="margin:10px 0 0"></h3>
+      <h2 style="margin:10px 0 4px">Valutazione immobiliare gratuita</h2>
+      <div class="small">Mittente previsto: <strong>F1IMMOBILIARESUSA@OUTLOOK.IT</strong> · Provider: Microsoft Graph</div>
     </div>
-    <div id="previewBody" class="body"></div>
+    <div class="btns" style="margin:0">
+      <span id="providerPill" class="pill warn">VERIFICA PROVIDER...</span>
+      <button id="refreshBtn" class="secondary">AGGIORNA</button>
+      <button id="logoutBtn" class="ghost">ESCI</button>
+    </div>
   </div>
 </section>
-</div></div>
+
+<section class="card full">
+  <a href="valutazione.html" target="_blank" rel="noopener">
+    <img src="https://nqnmlsmeiynxbdojeyjt.supabase.co/functions/v1/f1-valutazione-banner" alt="F1 Immobiliare - Valutazione immobiliare gratuita" style="display:block;width:100%;height:auto;border-radius:14px">
+  </a>
+</section>
+
+<section class="card">
+  <h2>1. Lista destinatari</h2>
+  <label>Incolla qui le email</label>
+  <textarea id="emailsText" placeholder="cliente1@email.it&#10;cliente2@email.it&#10;cliente3@email.it"></textarea>
+  <div class="filebox">
+    <strong>Oppure carica un file</strong>
+    <div class="small">TXT · CSV · XLS · XLSX</div>
+    <input id="fileInput" type="file" accept=".txt,.csv,.xls,.xlsx" style="margin-top:10px">
+  </div>
+  <div class="btns">
+    <button id="analyzeBtn" class="secondary">ANALIZZA LISTA</button>
+    <button id="importBtn" class="primary" disabled>IMPORTA E CONTROLLA</button>
+  </div>
+  <div id="localStatus" class="status">Nessuna lista caricata.</div>
+</section>
+
+<section class="card">
+  <h2>2. Controllo automatico</h2>
+  <div class="stats">
+    <div class="stat"><span>IMPORTATE</span><b id="sImported">0</b></div>
+    <div class="stat"><span>VALIDE</span><b id="sValid">0</b></div>
+    <div class="stat"><span>DUPLICATE</span><b id="sDupes">0</b></div>
+    <div class="stat"><span>NON VALIDE</span><b id="sInvalid">0</b></div>
+  </div>
+  <div class="note" style="margin-top:12px">
+    Il programma non trasforma automaticamente una semplice lista in contatti marketing. Il server verifica il consenso F1, suppression list, blocchi e precedenti invii prima di mettere un indirizzo in coda.
+  </div>
+</section>
+
+<section class="card full">
+  <h2>3. Dashboard campagna</h2>
+  <div class="stats">
+    <div class="stat"><span>DESTINATARI</span><b id="dTotal">0</b></div>
+    <div class="stat"><span>AUTORIZZATI</span><b id="dAuthorized">0</b></div>
+    <div class="stat"><span>ESCLUSI</span><b id="dExcluded">0</b></div>
+    <div class="stat"><span>INVIATI</span><b id="dSent">0</b></div>
+    <div class="stat"><span>CONSEGNATI</span><b id="dDelivered">0</b></div>
+    <div class="stat"><span>APERTURE</span><b id="dOpened">0</b></div>
+    <div class="stat"><span>CLICK</span><b id="dClicked">0</b></div>
+    <div class="stat"><span>LEAD</span><b id="dLeads">0</b></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>4. Modalità test</h2>
+  <label>Email di test</label>
+  <input id="testEmail" type="email" placeholder="email@test.it">
+  <div class="btns"><button id="testBtn" class="secondary" disabled>INVIA TEST</button></div>
+  <div class="small">Il test invia una sola email e non viene inserito nelle statistiche della campagna reale.</div>
+</section>
+
+<section class="card">
+  <h2>5. Avvio campagna</h2>
+  <div id="sendGateBox" class="note">Carica una lista e attendi il controllo del server.</div>
+  <div class="btns">
+    <button id="startBtn" class="primary" disabled>AVVIA CAMPAGNA</button>
+  </div>
+  <div class="progress"><div id="sendProgress"></div></div>
+  <div id="sendStatus" class="status">Campagna non avviata.</div>
+</section>
+
+<section class="card full">
+  <h2>6. Anteprima</h2>
+  <div class="preview">
+    <div class="preview-head">
+      <span class="pill">F1 IMMOBILIARE</span>
+      <h3 style="margin:10px 0 0">Quanto vale oggi il tuo immobile? Valutazione gratuita</h3>
+    </div>
+    <div class="preview-body">
+      <a href="valutazione.html" target="_blank" rel="noopener"><img src="https://nqnmlsmeiynxbdojeyjt.supabase.co/functions/v1/f1-valutazione-banner" alt="Valutazione immobiliare gratuita F1"></a>
+      <p>Buongiorno,</p>
+      <p>stai pensando di vendere casa o vuoi semplicemente conoscere il suo valore attuale?</p>
+      <p>F1 Immobiliare offre una valutazione immobiliare gratuita e senza impegno.</p>
+      <p>La valutazione tiene conto delle caratteristiche dell’immobile, della zona, della metratura, dello stato e dei valori di mercato comparabili disponibili.</p>
+      <p><a class="cta" href="valutazione.html" target="_blank" rel="noopener">RICHIEDI LA VALUTAZIONE GRATUITA</a></p>
+      <p class="small">Privacy · Disiscriviti (link personale generato automaticamente per ogni destinatario)</p>
+    </div>
+  </div>
+</section>
+
+<section class="card full">
+  <h2>7. Registro attività</h2>
+  <div id="events" class="events small">Nessun evento.</div>
+</section>
+</div>
+</main>
+</div>
 
 <script>
-const FORM_URL="https://josephsocialmedia2-spec.github.io/DIGITALSTRATEGIST/campagna-email-f1/valutazione.html";
-const BANNER_URL="https://nqnmlsmeiynxbdojeyjt.supabase.co/functions/v1/f1-valutazione-banner";
+const SUPABASE_URL="https://nqnmlsmeiynxbdojeyjt.supabase.co";
+const PUBLISHABLE_KEY="sb_publishable_Clz5qPTkTtvwV0rqWTcfMQ_sCDSRgnu";
+const ADMIN_EMAIL="f1immobiliaresusa@outlook.it";
+const CAMPAIGN_KEY="valutazione-gratuita-2026-09";
+const API=SUPABASE_URL+"/functions/v1/campaign-admin-f1";
+const client=window.supabase.createClient(SUPABASE_URL,PUBLISHABLE_KEY,{
+  auth:{persistSession:false,autoRefreshToken:true,detectSessionInUrl:false}
+});
+let session=null;
+let parsedRecipients=[];
+let providerConfigured=false;
+let lastStats=null;
+let sending=false;
+
+const $=id=>document.getElementById(id);
+function setStatus(id,msg,type=""){const e=$(id);e.textContent=msg;e.className="status "+type;e.classList.remove("hidden")}
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
-function renderPreview(){
-  const subject=document.getElementById("subject").value.trim();
-  const text=document.getElementById("body").value.trim();
-  document.getElementById("previewSubject").textContent=subject;
-  const paras=text.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
-  let html="<p><a href='"+FORM_URL+"' target='_blank' rel='noopener'><img src='"+BANNER_URL+"' alt='F1 Immobiliare - Valutazione immobiliare gratuita' style='display:block;width:100%;max-width:720px;height:auto;border-radius:12px'></a></p>";
-  html+=paras.map(p=>"<p>"+esc(p).replace(/\n/g,"<br>")+"</p>").join("");
-  html+="<p style='margin:24px 0'><a class='cta' href='"+FORM_URL+"' target='_blank' rel='noopener'>RICHIEDI LA VALUTAZIONE GRATUITA</a></p>";
-  html+="<p class='small'>F1 Immobiliare · Richiesta gratuita e senza impegno</p>";
-  document.getElementById("previewBody").innerHTML=html;
+function emailValid(s){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s||"").trim().toLowerCase())}
+
+async function api(action,payload={}){
+  const {data}=await client.auth.getSession();
+  if(data?.session) session=data.session;
+  if(!session?.access_token) throw new Error("Sessione scaduta. Accedi di nuovo.");
+  const r=await fetch(API,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+session.access_token,
+      "apikey":PUBLISHABLE_KEY
+    },
+    body:JSON.stringify({action,campaign_key:CAMPAIGN_KEY,...payload})
+  });
+  const dataOut=await r.json().catch(()=>({}));
+  if(!r.ok){
+    const e=new Error(dataOut.message||dataOut.error||"Errore server");
+    e.code=dataOut.error||"";e.status=r.status;throw e;
+  }
+  return dataOut;
 }
-async function copyText(){
-  const text=document.getElementById("body").value+"\n\nRICHIEDI LA VALUTAZIONE GRATUITA: "+FORM_URL;
-  try{await navigator.clipboard.writeText(text);alert("Testo copiato")}
-  catch(e){alert("Copia non disponibile")}
+
+function normalizeTextList(text){
+  const tokens=String(text||"").split(/[\s,;]+/).map(x=>x.trim()).filter(Boolean);
+  const candidates=tokens.filter(x=>x.includes("@"));
+  const seen=new Set(),out=[];let invalid=0,dupes=0;
+  for(const token of candidates){
+    const email=token.replace(/^["'<(]+|[>"')\].:]+$/g,"").toLowerCase();
+    if(!emailValid(email)){invalid++;continue}
+    if(seen.has(email)){dupes++;continue}
+    seen.add(email);out.push({email});
+  }
+  return {out,total:candidates.length,invalid,dupes};
 }
-async function copyRichEmail(){
-  renderPreview();
-  const html=document.getElementById("previewBody").innerHTML;
-  const subject=document.getElementById("subject").value.trim();
-  const plain=document.getElementById("body").value.trim()+"\n\nRICHIEDI LA VALUTAZIONE GRATUITA:\n"+FORM_URL;
+function parseWorkbookRows(rows){
+  const seen=new Set(),out=[];let invalid=0,dupes=0,total=0;
+  if(!rows.length)return{out,total,invalid,dupes};
+  const header=(rows[0]||[]).map(v=>String(v||"").trim().toLowerCase());
+  const emailIdx=header.findIndex(h=>["email","e-mail","mail","email address","indirizzo email"].includes(h));
+  const firstIdx=header.findIndex(h=>["nome","first_name","first name"].includes(h));
+  const lastIdx=header.findIndex(h=>["cognome","last_name","last name"].includes(h));
+  const start=emailIdx>=0?1:0;
+  for(let i=start;i<rows.length;i++){
+    const row=rows[i]||[];
+    let raw=emailIdx>=0?String(row[emailIdx]||"").trim():"";
+    if(!raw){
+      const cell=row.find(v=>String(v||"").includes("@"));
+      raw=String(cell||"").trim();
+    }
+    if(!raw)continue;
+    total++;
+    const email=raw.toLowerCase();
+    if(!emailValid(email)){invalid++;continue}
+    if(seen.has(email)){dupes++;continue}
+    seen.add(email);
+    out.push({
+      email,
+      first_name:firstIdx>=0?String(row[firstIdx]||"").trim():"",
+      last_name:lastIdx>=0?String(row[lastIdx]||"").trim():""
+    });
+  }
+  return {out,total,invalid,dupes};
+}
+function updateLocalStats(result){
+  parsedRecipients=result.out||[];
+  $("sImported").textContent=result.total||0;
+  $("sValid").textContent=parsedRecipients.length;
+  $("sDupes").textContent=result.dupes||0;
+  $("sInvalid").textContent=result.invalid||0;
+  $("importBtn").disabled=!parsedRecipients.length;
+  setStatus("localStatus",
+    "Trovate: "+(result.total||0)+"\nValide uniche: "+parsedRecipients.length+"\nDuplicate: "+(result.dupes||0)+"\nNon valide: "+(result.invalid||0),
+    parsedRecipients.length?"ok":"warn");
+}
+async function parseFile(file){
+  if(!file)return;
+  if(file.size>8*1024*1024){setStatus("localStatus","File troppo grande. Massimo 8 MB.","err");return}
   try{
-    if(navigator.clipboard && window.ClipboardItem){
-      const item=new ClipboardItem({
-        "text/html":new Blob([html],{type:"text/html"}),
-        "text/plain":new Blob([plain],{type:"text/plain"})
-      });
-      await navigator.clipboard.write([item]);
-      alert("Email grafica copiata. Apri Outlook e incollala nel corpo del messaggio.");
-    }else{
-      await navigator.clipboard.writeText(plain);
-      alert("Il browser non supporta la copia HTML: è stato copiato il testo.");
+    const ext=file.name.split(".").pop().toLowerCase();
+    if(ext==="txt"){
+      updateLocalStats(normalizeTextList(await file.text()));return;
+    }
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:"array"});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:false});
+    updateLocalStats(parseWorkbookRows(rows));
+  }catch(e){setStatus("localStatus","Errore lettura file: "+e.message,"err")}
+}
+function applyStats(s){
+  if(!s)return;lastStats=s;
+  $("dTotal").textContent=s.total??0;
+  $("dAuthorized").textContent=s.authorized??0;
+  $("dExcluded").textContent=s.excluded??0;
+  $("dSent").textContent=s.sent??0;
+  $("dDelivered").textContent=s.delivered??0;
+  $("dOpened").textContent=s.opened??0;
+  $("dClicked").textContent=s.clicked??0;
+  $("dLeads").textContent=s.leads??0;
+  updateGate();
+}
+function updateGate(){
+  const a=lastStats?.authorized??0;
+  const pending=(lastStats?.counts?.pending??0)+(lastStats?.counts?.queued??0)+(lastStats?.counts?.failed??0);
+  if(!providerConfigured){
+    $("sendGateBox").innerHTML="<strong>INVIO BLOCCATO:</strong> Microsoft Graph non è ancora autorizzato per la casella F1.";
+    $("startBtn").disabled=true;$("testBtn").disabled=true;return;
+  }
+  $("testBtn").disabled=false;
+  if(a<=0 || pending<=0){
+    $("sendGateBox").textContent=a<=0?"Nessun destinatario autorizzato dal send gate.":"Non ci sono destinatari ancora da inviare.";
+    $("startBtn").disabled=true;return;
+  }
+  $("sendGateBox").innerHTML="<strong>PRONTO:</strong> "+pending+" destinatari in coda autorizzata. Gli esclusi non saranno inviati.";
+  $("startBtn").disabled=sending;
+}
+function renderEvents(events){
+  if(!events?.length){$("events").textContent="Nessun evento.";return}
+  $("events").innerHTML=events.map(e=>{
+    const d=new Date(e.created_at).toLocaleString("it-IT");
+    return '<div class="event"><strong>'+esc(e.event_type)+'</strong> · '+esc(d)+'<br><span>'+esc(JSON.stringify(e.detail||{}))+'</span></div>';
+  }).join("");
+}
+async function refreshStatus(){
+  try{
+    const d=await api("status");
+    providerConfigured=Boolean(d.provider?.configured);
+    $("providerPill").textContent=providerConfigured?"MICROSOFT GRAPH COLLEGATO":"MICROSOFT DA COLLEGARE";
+    $("providerPill").className="pill "+(providerConfigured?"":"bad");
+    applyStats(d.stats);renderEvents(d.events);
+  }catch(e){setStatus("sendStatus","Errore aggiornamento: "+e.message,"err")}
+}
+async function login(){
+  const pass=$("loginPassword").value;
+  if(!pass){setStatus("loginStatus","Inserisci la password F1.","warn");return}
+  $("loginBtn").disabled=true;setStatus("loginStatus","Accesso in corso...","");
+  const {data,error}=await client.auth.signInWithPassword({email:ADMIN_EMAIL,password:pass});
+  $("loginBtn").disabled=false;
+  if(error||!data.session){setStatus("loginStatus","Accesso non riuscito: "+(error?.message||"credenziali non valide"),"err");return}
+  session=data.session;
+  $("loginPassword").value="";
+  $("loginCard").classList.add("hidden");$("app").classList.remove("hidden");
+  await refreshStatus();
+}
+async function logout(){
+  sending=false;await client.auth.signOut();session=null;
+  $("app").classList.add("hidden");$("loginCard").classList.remove("hidden");
+  setStatus("loginStatus","Sessione chiusa.","ok");
+}
+async function importList(){
+  if(!parsedRecipients.length)return;
+  $("importBtn").disabled=true;
+  let agg={received:0,valid:0,invalid:0,duplicates:0,authorized:0,not_authorized:0,suppressed:0,already_sent:0};
+  try{
+    setStatus("localStatus","Controllo server in corso...","");
+    for(let i=0;i<parsedRecipients.length;i+=500){
+      const d=await api("import",{recipients:parsedRecipients.slice(i,i+500)});
+      for(const k of Object.keys(agg))agg[k]+=Number(d.import?.[k]||0);
+      applyStats(d.stats);
+    }
+    setStatus("localStatus",
+      "Controllo completato.\nAutorizzati F1: "+agg.authorized+
+      "\nNon autorizzati: "+agg.not_authorized+
+      "\nSuppression/bloccati: "+agg.suppressed+
+      "\nGià gestiti nella stessa campagna: "+agg.already_sent,
+      "ok");
+    await refreshStatus();
+  }catch(e){setStatus("localStatus","Importazione non riuscita: "+e.message,"err")}
+  finally{$("importBtn").disabled=!parsedRecipients.length}
+}
+async function sendTest(){
+  const email=$("testEmail").value.trim().toLowerCase();
+  if(!emailValid(email)){setStatus("sendStatus","Inserisci una email di test valida.","warn");return}
+  $("testBtn").disabled=true;
+  try{
+    setStatus("sendStatus","Invio test in corso...","");
+    await api("send_test",{email});
+    setStatus("sendStatus","Email di test inviata a "+email+".","ok");
+    await refreshStatus();
+  }catch(e){
+    setStatus("sendStatus",e.code==="MICROSOFT_NOT_CONFIGURED"?"Microsoft Graph non è ancora collegato alla casella F1.":("Test non inviato: "+e.message),"err");
+  }finally{updateGate()}
+}
+async function startCampaign(){
+  if(sending)return;sending=true;updateGate();
+  $("sendProgress").style.width="2%";
+  let initialPending=(lastStats?.counts?.pending??0)+(lastStats?.counts?.queued??0)+(lastStats?.counts?.failed??0);
+  let processed=0;
+  try{
+    setStatus("sendStatus","Campagna avviata. Il programma sta inviando automaticamente i batch...","");
+    while(sending){
+      const d=await api("start");
+      applyStats(d.stats);
+      const batchSent=Number(d.batch?.sent||0)+Number(d.batch?.failed||0);
+      processed+=batchSent;
+      const pct=initialPending?Math.min(99,Math.round(processed/initialPending*100)):50;
+      $("sendProgress").style.width=pct+"%";
+      setStatus("sendStatus","Inviati in questo ciclo: "+(d.batch?.sent||0)+" · Errori: "+(d.batch?.failed||0)+" · Rimasti: "+(d.batch?.remaining||0),"");
+      if(d.batch?.done){
+        $("sendProgress").style.width="100%";
+        setStatus("sendStatus","Campagna completata. Risultati registrati nel database.","ok");
+        break;
+      }
+      await new Promise(r=>setTimeout(r,900));
     }
   }catch(e){
-    alert("Copia grafica non disponibile in questo browser.");
+    if(e.code==="MICROSOFT_NOT_CONFIGURED"){
+      setStatus("sendStatus","INVIO BLOCCATO: bisogna autorizzare Microsoft Graph per F1IMMOBILIARESUSA@OUTLOOK.IT.","err");
+    }else setStatus("sendStatus","Invio interrotto: "+e.message,"err");
+  }finally{
+    sending=false;await refreshStatus();updateGate();
   }
 }
-function sendWithOutlook(){
-  const to=document.getElementById("recipient").value.trim();
-  if(!to){alert("Inserisci il destinatario");return}
-  const subject=document.getElementById("subject").value.trim();
-  const text=document.getElementById("body").value.trim()+"\n\nRICHIEDI LA VALUTAZIONE GRATUITA:\n"+FORM_URL;
-  const url="https://outlook.live.com/mail/0/deeplink/compose?to="+encodeURIComponent(to)+"&subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(text);
-  window.open(url,"_blank","noopener");
-}
-renderPreview();
+
+$("loginBtn").addEventListener("click",login);
+$("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+$("logoutBtn").addEventListener("click",logout);
+$("refreshBtn").addEventListener("click",refreshStatus);
+$("analyzeBtn").addEventListener("click",()=>updateLocalStats(normalizeTextList($("emailsText").value)));
+$("emailsText").addEventListener("input",()=>{if($("emailsText").value.trim())updateLocalStats(normalizeTextList($("emailsText").value))});
+$("fileInput").addEventListener("change",e=>parseFile(e.target.files?.[0]));
+$("importBtn").addEventListener("click",importList);
+$("testBtn").addEventListener("click",sendTest);
+$("startBtn").addEventListener("click",startCampaign);
 </script>
 </body>
 </html>
