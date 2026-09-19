@@ -1,7 +1,7 @@
 {
   "source": "https://lasacraimmobiliare.it/collections/in-vendita",
-  "synced_at": "2026-09-19T15:27:05.868097+00:00",
-  "count": 23,
+  "synced_at": "2026-09-19T15:34:37.647822+00:00",
+  "count": 24,
   "partial_count": 0,
   "failures": [],
   "items": [
@@ -826,6 +826,44 @@
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-04_at_11.57.04_2.jpg?v=1767525666&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-04_at_11.57.04_4.jpg?v=1767525597&width=3840",
         "https://lasacraimmobiliare.it/cdn/shop/files/WhatsApp_Image_2026-01-04_at_11.57.16_1.jpg?v=1767525598&width=3840"
+      ],
+      "partial": false
+    },
+    {
+      "id": "attivita-bar-ristorante-tabacchi-lotto",
+      "title": "AVIGLIANA ATTIVITA' BAR RISTORANTE TABACCHI LOTTO",
+      "price": "€150.000,00",
+      "url": "https://lasacraimmobiliare.it/products/attivita-bar-ristorante-tabacchi-lotto?variant=54948713136455",
+      "description": "Attività commerciale consolidata ad Avigliana con oltre 30 anni di storia e clientela affezionata. Bar, ristorante e tabacchi compresa di arredo situati in zona di passaggio strategica che garantisce flusso costante di avventori.Gestione provata e redditizia, pronta per il passaggio generazionale. Ideale per chi cerca un'attività già strutturata con potenziale di crescita. Vendita motivata dal raggiungimento dell'età pensionabile del titolare.Opportunità rara per chi desidera entrare nel settore con una base solida e una location privilegiata. https://youtu.be/5SYdg9thjKM?feature=shared",
+      "mq": "350",
+      "locali": "",
+      "bagni": "2",
+      "classe": "E",
+      "anno": "2000",
+      "impianto": "metano",
+      "alimentazione": "RADIATORI",
+      "riscaldamento": "Autonomo",
+      "video": "",
+      "images": [
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_10_50_22.png?v=1788964303&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_10_51_28.png?v=1788964303&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_10_52_27.png?v=1788964303&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_10_53_28.png?v=1788964303&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_10_55_13.png?v=1788964303&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_10_57_44.png?v=1788964303&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_10_59_09.png?v=1788964304&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_11_00_49.png?v=1788964303&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPTImage8set2026_11_02_30.png?v=1788964304&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-09-08at10.47.51_4.jpg?v=1788964302&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-09-08at10.47.51_5.jpg?v=1788964302&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-09-08at10.47.55_3.jpg?v=1788964302&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-09-09at10.53.52_1.jpg?v=1788964301&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/WhatsAppImage2026-09-09at10.53.52_2.jpg?v=1788964301&width=3840",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_06_32.png?v=1778227614&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_3_dic_2025_16_47_32.png?v=1764776870&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_4_feb_2026_11_47_21.png?v=1770202078&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_09_57_39.png?v=1778227092&width=1200",
+        "https://lasacraimmobiliare.it/cdn/shop/files/ChatGPT_Image_8_mag_2026_10_00_35.png?v=1778227280&width=1200"
       ],
       "partial": false
     }
