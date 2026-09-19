@@ -90,14 +90,6 @@ textarea{min-height:110px;resize:vertical}.row{display:grid;grid-template-column
 const FORM_BASE="https://josephsocialmedia2-spec.github.io/DIGITALSTRATEGIST/campagna-email-test/ricontatto.html";
 let LISTINGS=[];
 let CURRENT_LISTING=null;
-const SHORT_LINKS={
-  "attivita-bar-ristorante-tabacchi-lotto":{
-    listing:"https://linkly.link/2tfeM",
-    photo:"https://linkly.link/2tfeN",
-    callback:"https://linkly.link/2tfeP",
-    video:"https://linkly.link/2tfeQ"
-  }
-};
 
 function setv(id,v){document.getElementById(id).value=v||""}
 function val(id){return document.getElementById(id).value.trim()}
@@ -154,9 +146,6 @@ function applyListing(i){
   generateEmail();
 }
 
-function shortSet(){
-  return CURRENT_LISTING && SHORT_LINKS[CURRENT_LISTING.id] ? SHORT_LINKS[CURRENT_LISTING.id] : null;
-}
 function photoDirectUrl(){
   if(CURRENT_LISTING && Array.isArray(CURRENT_LISTING.images) && CURRENT_LISTING.images.length){
     return CURRENT_LISTING.images[0] || "";
@@ -164,22 +153,16 @@ function photoDirectUrl(){
   return "";
 }
 function photoUrl(){
-  const s=shortSet();
-  return s?.photo || photoDirectUrl();
+  return photoDirectUrl();
 }
 function listingUrl(){
-  const s=shortSet();
-  return s?.listing || val("url");
+  return val("url");
 }
 function videoUrl(){
-  const s=shortSet();
-  if(s?.video) return s.video;
   return val("video");
 }
 
 function contactUrl(){
-  const s=shortSet();
-  if(s?.callback) return s.callback;
   const u=new URL(FORM_BASE);
   u.searchParams.set("brand","la_sacra");
   if(val("url"))u.searchParams.set("property",val("url"));
@@ -202,11 +185,10 @@ function generateEmail(){
   if(val("classe"))b+="Classe energetica: "+val("classe")+"\n";
   if(d)b+="\n"+d+"\n";
   const photo=photoUrl();
-  if(photo)b+="\nFOTO: "+photo+"\n";
-  if(u)b+="VEDI IMMOBILE: "+u+"\n";
-  if(v)b+="VIDEO: "+v+"\n";
+  b+="\nApri l'anteprima HTML per usare i pulsanti cliccabili: VEDI L'IMMOBILE";
+  if(v)b+=", GUARDA IL VIDEO";
+  b+=" ed ESSERE RICONTATTATO.\n";
   b+="\nSe sta pensando di vendere la propria abitazione o altri immobili di proprietà, può richiedere di essere ricontattato.\n";
-  b+="ESSERE RICONTATTATO: "+contactUrl()+"\n";
   b+="\nCordiali saluti\nImmobiliare La Sacra";
   setv("email",b);
 
