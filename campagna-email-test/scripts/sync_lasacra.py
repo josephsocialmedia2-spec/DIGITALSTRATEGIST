@@ -66,6 +66,18 @@ def extract_product(url, fallback_title="", fallback_price=""):
             if len(candidate) > 80:
                 description = candidate
                 break
+    if not description:
+        paras = []
+        blocked = ("riceverò il mio ordine", "spedizione", "produzione", "partner di produzione", "calcola il mutuo", "tassi indicativi")
+        for p in soup.find_all(["p","div"]):
+            candidate = clean(p.get_text(" ", strip=True))
+            low = candidate.lower()
+            if 90 <= len(candidate) <= 1800 and not any(x in low for x in blocked):
+                if any(k in low for k in ("immobile","appartamento","villa","casa","terreno","locale","proprietà","soluzione","vendita")):
+                    if candidate not in paras:
+                        paras.append(candidate)
+        if paras:
+            description = max(paras, key=len)[:2200]
 
     def field(pattern):
         m = re.search(pattern, text, re.I)
@@ -79,16 +91,22 @@ def extract_product(url, fallback_title="", fallback_price=""):
     impianto = field(r"Tipo impianto:?\s*([^\n]+)")
     alimentazione = field(r"Tipo alimentazione:?\s*([^\n]+)")
     riscaldamento = ""
-    if re.search(r"riscaldamento\s+autonom", text, re.I):
+    rm = re.search(r"\bRiscaldamento\s*(Autonomo|Centralizzato)", text, re.I)
+    if rm:
+        riscaldamento = rm.group(1).capitalize()
+    elif re.search(r"riscaldamento\s+autonom", text, re.I):
         riscaldamento = "Autonomo"
     elif re.search(r"riscaldamento\s+centralizz", text, re.I):
         riscaldamento = "Centralizzato"
 
     video = ""
-    for a in soup.find_all("a", href=True):
-        href = a.get("href","")
-        if "youtu.be/" in href or "youtube.com/" in href:
-            video = href
+    for tag in soup.find_all(True):
+        candidates = [tag.get("href",""), tag.get("src",""), tag.get("data-src",""), tag.get("data-url","")]
+        for href in candidates:
+            if href and ("youtu.be/" in href or "youtube.com/" in href):
+                video = abs_url(href)
+                break
+        if video:
             break
 
     images = []
@@ -98,6 +116,9 @@ def extract_product(url, fallback_title="", fallback_price=""):
         if not src or "cdn/shop" not in src:
             continue
         base_img = src.split("?")[0]
+        fname = base_img.rsplit("/",1)[-1].lower()
+        if fname.startswith("icons8-") or "untitled_design_14" in fname or "logo" in fname:
+            continue
         if base_img in seen_base:
             continue
         seen_base.add(base_img)
