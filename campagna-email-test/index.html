@@ -116,7 +116,16 @@ async function loadListings(noCache=false){
     const when=data.synced_at?new Date(data.synced_at).toLocaleString("it-IT"):"non ancora eseguita";
     sync.textContent="Annunci: "+LISTINGS.length+"\nUltima sincronizzazione: "+when;
     sync.className="summary "+(LISTINGS.length?"ok":"warn");
-    if(LISTINGS.length){sel.value="0";applyListing(0)}
+    if(LISTINGS.length){
+      const requested=new URLSearchParams(location.search).get("listing");
+      let selectedIndex=0;
+      if(requested){
+        const idx=LISTINGS.findIndex(x=>x.id===requested || (x.url||"").includes(requested));
+        if(idx>=0) selectedIndex=idx;
+      }
+      sel.value=String(selectedIndex);
+      applyListing(selectedIndex);
+    }
   }catch(e){
     sel.innerHTML='<option value="">Nessun dato automatico disponibile</option>';
     sync.textContent="Sincronizzazione non ancora disponibile. Il processo automatico deve completare il primo aggiornamento.";
