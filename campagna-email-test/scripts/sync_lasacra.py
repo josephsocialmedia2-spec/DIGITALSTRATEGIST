@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 import json, re, time
 from datetime import datetime, timezone
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit, urlunsplit
 import requests
 from bs4 import BeautifulSoup
 
 BASE = "https://lasacraimmobiliare.it"
 COLLECTION = BASE + "/collections/in-vendita"
 OUT = "campagna-email-test/data/annunci.json"
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; F1CampaignSync/1.0; +https://f1immobiliare.com/)"}
+HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; CampaignSync/1.1)"}
 
 def clean(s):
     return re.sub(r"\s+", " ", s or "").strip()
@@ -20,15 +20,30 @@ def abs_url(u):
         return "https:" + u
     return urljoin(BASE, u)
 
-def extract_product(url):
+def strip_query(u):
+    p = urlsplit(u)
+    return urlunsplit((p.scheme,p.netloc,p.path,"",""))
+
+def empty_stub(url, title="", price=""):
+    handle = strip_query(url).rstrip("/").split("/")[-1]
+    return {
+        "id": handle, "title": title or handle.replace("-"," ").upper(),
+        "price": price, "url": strip_query(url), "description": "",
+        "mq": "", "locali": "", "bagni": "", "classe": "", "anno": "",
+        "impianto": "", "alimentazione": "", "riscaldamento": "",
+        "video": "", "images": [], "partial": True
+    }
+
+def extract_product(url, fallback_title="", fallback_price=""):
     r = requests.get(url, headers=HEADERS, timeout=30)
     r.raise_for_status()
     soup = BeautifulSoup(r.text, "html.parser")
     text = soup.get_text("\n", strip=True)
 
-    title = clean((soup.find("h1") or soup.title).get_text(" ", strip=True))
+    h1 = soup.find("h1")
+    title = clean(h1.get_text(" ", strip=True)) if h1 else fallback_title
     canonical = soup.find("link", rel="canonical")
-    canonical_url = canonical.get("href") if canonical else url
+    canonical_url = strip_query(canonical.get("href") if canonical else url)
 
     price = ""
     price_meta = soup.find("meta", attrs={"property":"product:price:amount"})
@@ -40,6 +55,8 @@ def extract_product(url):
     if not price:
         m = re.search(r"€\s*([0-9\.]+,[0-9]{2})", text)
         if m: price = "€" + m.group(1)
+    if not price:
+        price = fallback_price
 
     description = ""
     for sel in [".product__description", ".product-description", ".rte"]:
@@ -75,57 +92,68 @@ def extract_product(url):
             break
 
     images = []
+    seen_base = set()
     for img in soup.find_all("img"):
-        src = img.get("src") or img.get("data-src") or ""
-        src = abs_url(src)
-        if src and "cdn/shop" in src and src not in images:
-            images.append(src)
+        src = abs_url(img.get("src") or img.get("data-src") or "")
+        if not src or "cdn/shop" not in src:
+            continue
+        base_img = src.split("?")[0]
+        if base_img in seen_base:
+            continue
+        seen_base.add(base_img)
+        images.append(src)
     images = images[:20]
 
-    handle = canonical_url.rstrip("/").split("/")[-1].split("?")[0]
+    handle = canonical_url.rstrip("/").split("/")[-1]
     return {
-        "id": handle,
-        "title": title,
-        "price": price,
-        "url": canonical_url,
-        "description": description,
-        "mq": mq,
-        "locali": locali,
-        "bagni": bagni,
-        "classe": classe,
-        "anno": anno,
-        "impianto": impianto,
-        "alimentazione": alimentazione,
-        "riscaldamento": riscaldamento,
-        "video": video,
-        "images": images
+        "id": handle, "title": title or fallback_title, "price": price,
+        "url": canonical_url, "description": description, "mq": mq,
+        "locali": locali, "bagni": bagni, "classe": classe, "anno": anno,
+        "impianto": impianto, "alimentazione": alimentazione,
+        "riscaldamento": riscaldamento, "video": video, "images": images,
+        "partial": False
     }
 
 def main():
     r = requests.get(COLLECTION, headers=HEADERS, timeout=30)
     r.raise_for_status()
     soup = BeautifulSoup(r.text, "html.parser")
-    urls = []
+
+    products = {}
     for a in soup.find_all("a", href=True):
         href = a["href"].split("#")[0]
-        if href.startswith("/products/"):
-            u = abs_url(href)
-            if u not in urls:
-                urls.append(u)
+        if not href.startswith("/products/"):
+            continue
+        url = strip_query(abs_url(href))
+        if url in products:
+            continue
+        title = clean(a.get_text(" ", strip=True))
+        parent_text = clean(a.parent.get_text(" ", strip=True)) if a.parent else ""
+        pm = re.search(r"€\s*([0-9\.]+,[0-9]{2})", parent_text)
+        price = "€"+pm.group(1) if pm else ""
+        products[url] = {"title": title, "price": price}
 
     items = []
+    failures = []
+    urls = list(products.keys())
     for i, url in enumerate(urls, 1):
+        meta = products[url]
         try:
-            items.append(extract_product(url))
-            print(f"[{i}/{len(urls)}] {items[-1]['title']}")
+            item = extract_product(url, meta["title"], meta["price"])
+            items.append(item)
+            print(f"[{i}/{len(urls)}] {item['title']}")
         except Exception as exc:
+            failures.append({"url":url,"error":str(exc)})
+            items.append(empty_stub(url, meta["title"], meta["price"]))
             print(f"[WARN] {url}: {exc}")
-        time.sleep(0.15)
+        time.sleep(0.2)
 
     payload = {
         "source": COLLECTION,
         "synced_at": datetime.now(timezone.utc).isoformat(),
         "count": len(items),
+        "partial_count": sum(1 for x in items if x.get("partial")),
+        "failures": failures,
         "items": items
     }
     with open(OUT, "w", encoding="utf-8") as f:
