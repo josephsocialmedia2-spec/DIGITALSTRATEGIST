@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>F1 Immobiliare — Valutazione gratuita</title>
+<title>F1 Immobiliare — Agent Pricing gratuito</title>
 <style>
 :root{--g:#087443;--g2:#0c9557;--bg:#f3f7f4;--card:#fff;--text:#163127;--muted:#6d7c75;--line:#d6e2dc}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
@@ -20,10 +20,10 @@ a{color:var(--g)}@media(max-width:640px){.row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><div class="wrap" style="margin:0 auto;padding:0 16px"><h1>F1 Immobiliare</h1><p style="margin:6px 0 0">Richiedi una valutazione immobiliare gratuita</p></div></header>
+<header><div class="wrap" style="margin:0 auto;padding:0 16px"><h1>F1 Immobiliare</h1><p style="margin:6px 0 0">Richiedi il tuo Agent Pricing gratuito</p></div></header>
 
 <div class="wrap"><div class="card">
-  <p>Compila i dati essenziali dell’immobile. F1 Immobiliare ti ricontatterà per approfondire la valutazione.</p>
+  <p>Scopri quanto può valere oggi il tuo immobile. Compila i dati essenziali: F1 Immobiliare ti ricontatterà per preparare il tuo Agent Pricing.</p>
   <form id="form">
     <div class="row">
       <div><label for="first_name">Nome *</label><input id="first_name" required autocomplete="given-name"></div>
@@ -67,8 +67,8 @@ a{color:var(--g)}@media(max-width:640px){.row{grid-template-columns:1fr}}
       <label for="marketing" style="margin:0;font-weight:400">Acconsento a ricevere in futuro comunicazioni commerciali, opportunità e proposte immobiliari tramite email e/o telefono.</label>
     </div>
 
-    <p class="muted">Il consenso marketing è facoltativo e non è necessario per richiedere la valutazione.</p>
-    <button id="submit" type="submit">RICHIEDI LA VALUTAZIONE GRATUITA</button>
+    <p class="muted">Il consenso marketing è facoltativo e non è necessario per richiedere l’Agent Pricing.</p>
+    <button id="submit" type="submit">RICHIEDI IL TUO AGENT PRICING GRATUITO</button>
     <div id="status" class="status"></div>
   </form>
 </div></div>
@@ -97,13 +97,13 @@ document.getElementById("form").addEventListener("submit",async(e)=>{
     property_address:document.getElementById("address").value,
     property_type:document.getElementById("type").value,
     notes:document.getElementById("notes").value,
-    property_title:"Richiesta valutazione immobiliare gratuita"
+    property_title:"Richiesta Agent Pricing gratuito"
   };
   try{
     const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
     const data=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(data.error||"Invio non riuscito");
-    st.className="status ok"; st.textContent="Richiesta registrata. F1 Immobiliare ti ricontatterà per la valutazione.";
+    st.className="status ok"; st.textContent="Richiesta registrata. F1 Immobiliare ti ricontatterà per il tuo Agent Pricing.";
     e.target.reset();
   }catch(err){
     st.className="status err"; st.textContent=err.message||"Errore durante l'invio.";
