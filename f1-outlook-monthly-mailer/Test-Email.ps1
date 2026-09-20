@@ -9,6 +9,7 @@ try {
     Send-F1OutlookMail -Context $c -To $s.sender -Subject "TEST F1 - OUTLOOK MONTHLY MAILER" -Html $html
     Write-F1Log -Action "TEST_SENT" -Email $s.sender -Result "SENT"
     Write-Host "EMAIL TEST CONSEGNATA A OUTLOOK PER INVIO: $($s.sender)"
+    Write-Host "ESEGUI Verify-Test-Email.ps1 PER CONTROLLARE POSTA INVIATA E RICEZIONE."
     exit 0
 } catch {
     Write-F1Log -Action "TEST_SENT" -Result "ERROR" -Error $_.Exception.Message

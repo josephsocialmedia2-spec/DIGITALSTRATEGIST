@@ -28,75 +28,58 @@ if ([int]$s.schedule_day -lt 1 -or [int]$s.schedule_day -gt 28) { throw "schedul
 if ([string]$s.schedule_time -notmatch '^([01]\d|2[0-3]):[0-5]\d$') { throw "schedule_time deve essere HH:mm" }
 
 Write-Host "Verifica Outlook Classic e account F1..."
+$d=Get-F1OutlookDiagnostics -Sender $s.sender
+
+if(-not $d.F1AccountPresent){
+    Write-Host ""
+    Write-Host "=================================================="
+    Write-Host "CONFIGURAZIONE OUTLOOK F1 NECESSARIA"
+    Write-Host "=================================================="
+    Write-Host "Outlook Classic: $(if($d.ClassicInstalled){'DISPONIBILE'}else{'NON TROVATO'})"
+    Write-Host "Account richiesto: $($s.sender)"
+    Write-Host "Account attualmente rilevati:"
+    if($d.AccountCount -eq 0){
+        Write-Host " - nessuno"
+    } else {
+        $d.Accounts | ForEach-Object {
+            $v=if($_.SmtpAddress){$_.SmtpAddress}else{$_.DisplayName}
+            Write-Host " - $v"
+        }
+    }
+    Write-Host "L'account F1 deve essere aggiunto al profilo Outlook Classic."
+    Write-Host "Avvio configurazione Outlook..."
+    Write-Host "=================================================="
+
+    & (Join-Path $appDir "Setup-F1-Outlook-Account.ps1")
+    $setupExit=$LASTEXITCODE
+    $d=Get-F1OutlookDiagnostics -Sender $s.sender
+    if(-not $d.F1AccountPresent){
+        Write-Host ""
+        Write-Host "INSTALLAZIONE IN ATTESA: Outlook Classic non vede ancora $($s.sender)."
+        Write-Host "Riesegui Install-F1-Mailer.ps1 dopo aver completato l'aggiunta dell'account."
+        exit $(if($setupExit){$setupExit}else{2})
+    }
+}
+
 $ctx=Get-F1OutlookContext -Sender $s.sender -ContactsFolderName $s.contacts_folder -CreateFolder -RequiredCategory $s.required_category -BlockedCategory $s.blocked_category
 Write-Host "OUTLOOK CLASSIC: OK"
 Write-Host "ACCOUNT F1: OK - $($s.sender)"
 Write-Host "CARTELLA CONTATTI: OK - $($s.contacts_folder)"
+Write-Host "F1-CONSENSO: OK"
+Write-Host "F1-DISCRITTO: OK"
 
-$time=[datetime]::ParseExact([string]$s.schedule_time,"HH:mm",[Globalization.CultureInfo]::InvariantCulture)
-$now=Get-Date
-$day=[int]$s.schedule_day
-$start=Get-Date -Year $now.Year -Month $now.Month -Day $day -Hour $time.Hour -Minute $time.Minute -Second 0
-if ($start -le $now) { $start=$start.AddMonths(1) }
-
-$main=Join-Path $appDir "F1-Mailer.ps1"
-$arg='-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "{0}"' -f $main
-$xmlArg=[Security.SecurityElement]::Escape($arg)
-$xmlWork=[Security.SecurityElement]::Escape($appDir)
-$user=[Security.SecurityElement]::Escape([Security.Principal.WindowsIdentity]::GetCurrent().Name)
-$startText=$start.ToString("yyyy-MM-ddTHH:mm:ss")
-$months="<January/><February/><March/><April/><May/><June/><July/><August/><September/><October/><November/><December/>"
-
-$xml=@"
-<?xml version="1.0" encoding="UTF-16"?>
-<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
-  <RegistrationInfo><Description>Invio mensile F1 tramite Outlook Classic.</Description></RegistrationInfo>
-  <Triggers>
-    <CalendarTrigger>
-      <StartBoundary>$startText</StartBoundary>
-      <Enabled>true</Enabled>
-      <ScheduleByMonth>
-        <DaysOfMonth><Day>$day</Day></DaysOfMonth>
-        <Months>$months</Months>
-      </ScheduleByMonth>
-    </CalendarTrigger>
-  </Triggers>
-  <Principals>
-    <Principal id="Author">
-      <UserId>$user</UserId>
-      <LogonType>InteractiveToken</LogonType>
-      <RunLevel>LeastPrivilege</RunLevel>
-    </Principal>
-  </Principals>
-  <Settings>
-    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
-    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
-    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
-    <AllowHardTerminate>true</AllowHardTerminate>
-    <StartWhenAvailable>true</StartWhenAvailable>
-    <RunOnlyIfNetworkAvailable>true</RunOnlyIfNetworkAvailable>
-    <AllowStartOnDemand>true</AllowStartOnDemand>
-    <Enabled>true</Enabled>
-    <Hidden>false</Hidden>
-    <ExecutionTimeLimit>PT4H</ExecutionTimeLimit>
-  </Settings>
-  <Actions Context="Author">
-    <Exec>
-      <Command>powershell.exe</Command>
-      <Arguments>$xmlArg</Arguments>
-      <WorkingDirectory>$xmlWork</WorkingDirectory>
-    </Exec>
-  </Actions>
-</Task>
-"@
-
+$user=[Security.Principal.WindowsIdentity]::GetCurrent().Name
+$xml=New-F1TaskXml -User $user -AppDir $appDir -ScheduleDay ([int]$s.schedule_day) -ScheduleTime ([string]$s.schedule_time)
 Register-ScheduledTask -TaskName "F1 OUTLOOK MONTHLY MAILER" -Xml $xml -Force | Out-Null
-$info=Get-ScheduledTaskInfo -TaskName "F1 OUTLOOK MONTHLY MAILER"
+$task=Get-F1TaskStatus
 
 Write-Host ""
 Write-Host "INSTALLAZIONE COMPLETATA"
+Write-Host "Versione: 1.0.1"
 Write-Host "Task: F1 OUTLOOK MONTHLY MAILER"
-Write-Host "Prossima esecuzione: $($info.NextRunTime)"
+Write-Host "Task attiva: $($task.Enabled)"
+Write-Host "StartWhenAvailable: $($task.StartWhenAvailable)"
+Write-Host "Prossima esecuzione: $($task.NextRunTime)"
 Write-Host "Configurazione: $settingsPath"
 Write-Host "Pannello: $(Join-Path $appDir 'F1-Control-Panel.ps1')"
 Write-Host ""

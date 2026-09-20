@@ -160,11 +160,173 @@ function Test-F1DoNotResend {
     return $r.status -in @("SENT","SENDING","UNCERTAIN")
 }
 
+function Get-F1ClassicOutlookPath {
+    $candidates = New-Object System.Collections.Generic.List[string]
+    foreach ($regPath in @(
+        "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE",
+        "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE",
+        "Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE"
+    )) {
+        try {
+            $key = Get-Item -LiteralPath $regPath -ErrorAction Stop
+            $value = [string]$key.GetValue("")
+            if ($value) { $candidates.Add($value.Trim('"')) }
+        } catch {}
+    }
+    $roots=@($env:ProgramFiles,[Environment]::GetEnvironmentVariable("ProgramFiles(x86)"))
+    foreach ($root in $roots) {
+        if ($root) {
+            $candidates.Add((Join-Path $root "Microsoft Office\root\Office16\OUTLOOK.EXE"))
+            $candidates.Add((Join-Path $root "Microsoft Office\Office16\OUTLOOK.EXE"))
+        }
+    }
+    try {
+        $cmd = Get-Command outlook.exe -ErrorAction Stop
+        if ($cmd.Source) { $candidates.Add([string]$cmd.Source) }
+    } catch {}
+    foreach ($p in ($candidates | Select-Object -Unique)) {
+        if ($p -and (Test-Path -LiteralPath $p)) { return (Resolve-Path -LiteralPath $p).Path }
+    }
+    return $null
+}
+
+function Test-F1NewOutlookInstalled {
+    try {
+        $pkg = Get-AppxPackage -Name "Microsoft.OutlookForWindows" -ErrorAction SilentlyContinue
+        if ($pkg) { return $true }
+    } catch {}
+    try {
+        if (Get-Process -Name "olk" -ErrorAction SilentlyContinue) { return $true }
+    } catch {}
+    return $false
+}
+
 function Get-F1OutlookApplication {
     try {
         return New-Object -ComObject Outlook.Application
     } catch {
-        throw "OUTLOOK_CLASSIC_NECESSARIO: impossibile creare Outlook.Application COM. Installare/configurare Outlook classico."
+        throw "OUTLOOK_CLASSIC_NECESSARIO: impossibile creare Outlook.Application COM."
+    }
+}
+
+function Get-F1OutlookAccountSnapshot {
+    param($Namespace)
+    $result = @()
+    if ($null -eq $Namespace) { return $result }
+    for ($i=1; $i -le $Namespace.Accounts.Count; $i++) {
+        $a = $Namespace.Accounts.Item($i)
+        $displayName=""; $smtp=""; $userName=""; $accountType=""; $storeName=""; $storeId=""
+        try { $displayName=[string]$a.DisplayName } catch {}
+        try { $smtp=[string]$a.SmtpAddress } catch {}
+        try { $userName=[string]$a.UserName } catch {}
+        try { $accountType=[string]$a.AccountType } catch {}
+        try { $storeName=[string]$a.DeliveryStore.DisplayName } catch {}
+        try { $storeId=[string]$a.DeliveryStore.StoreID } catch {}
+        $result += [pscustomobject]@{
+            Index=$i
+            ComObject=$a
+            DisplayName=$displayName
+            SmtpAddress=$smtp
+            UserName=$userName
+            AccountType=$accountType
+            DeliveryStore=$storeName
+            StoreID=$storeId
+        }
+    }
+    return $result
+}
+
+function Get-F1AccountIdentityValues {
+    param($Account)
+    $values = New-Object System.Collections.Generic.List[string]
+    foreach ($prop in @("SmtpAddress","DisplayName","UserName")) {
+        try {
+            $v = [string]$Account.$prop
+            if ($v) { $values.Add($v) }
+        } catch {}
+    }
+    try {
+        $v=[string]$Account.DeliveryStore.DisplayName
+        if ($v) { $values.Add($v) }
+    } catch {}
+    return @($values | ForEach-Object { Normalize-F1Email $_ } | Where-Object { $_ } | Select-Object -Unique)
+}
+
+function Test-F1AccountMatches {
+    param($Account,[string]$Sender)
+    if ($null -eq $Account) { return $false }
+    $target = Normalize-F1Email $Sender
+    try {
+        $smtp = Normalize-F1Email ([string]$Account.SmtpAddress)
+        if ($smtp -and $smtp -eq $target) { return $true }
+    } catch {}
+    return [bool](Get-F1AccountIdentityValues $Account | Where-Object { $_ -eq $target })
+}
+
+function Find-F1OutlookAccount {
+    param($Namespace,[string]$Sender)
+    if ($null -eq $Namespace) { return $null }
+    $target = Normalize-F1Email $Sender
+    for ($i=1; $i -le $Namespace.Accounts.Count; $i++) {
+        $a=$Namespace.Accounts.Item($i)
+        try {
+            if ((Normalize-F1Email ([string]$a.SmtpAddress)) -eq $target) { return $a }
+        } catch {}
+    }
+    for ($i=1; $i -le $Namespace.Accounts.Count; $i++) {
+        $a=$Namespace.Accounts.Item($i)
+        if (Test-F1AccountMatches -Account $a -Sender $Sender) { return $a }
+    }
+    return $null
+}
+
+function Get-F1OutlookDiagnostics {
+    param([string]$Sender="F1IMMOBILIARESUSA@OUTLOOK.IT")
+    $classicPath = Get-F1ClassicOutlookPath
+    $newInstalled = Test-F1NewOutlookInstalled
+    $classicProcess = [bool](Get-Process -Name "OUTLOOK" -ErrorAction SilentlyContinue)
+    $version=""
+    if ($classicPath) {
+        try { $version=(Get-Item -LiteralPath $classicPath).VersionInfo.FileVersion } catch {}
+    }
+    $mapi=$false
+    $accounts=@()
+    $f1Found=$false
+    try {
+        $app=Get-F1OutlookApplication
+        $ns=$app.GetNamespace("MAPI")
+        if ($ns) {
+            $mapi=$true
+            $accounts=@(Get-F1OutlookAccountSnapshot $ns)
+            $f1Found=[bool](Find-F1OutlookAccount -Namespace $ns -Sender $Sender)
+            if (-not $classicPath) { $classicPath="COM disponibile; percorso EXE non risolto" }
+        }
+    } catch {}
+    $classicInstalled=[bool]$classicPath
+    $status = if ($f1Found) {
+        "F1_ACCOUNT_FOUND"
+    } elseif ($classicInstalled -and $mapi) {
+        "CLASSIC_OUTLOOK_PROFILE_MISSING_F1"
+    } elseif ($classicInstalled) {
+        "CLASSIC_OUTLOOK_AVAILABLE"
+    } elseif ($newInstalled) {
+        "NEW_OUTLOOK_ONLY"
+    } else {
+        "OUTLOOK_CLASSIC_NOT_FOUND"
+    }
+    [pscustomobject]@{
+        WindowsUser=[Security.Principal.WindowsIdentity]::GetCurrent().Name
+        ClassicInstalled=$classicInstalled
+        ClassicPath=$classicPath
+        ClassicVersion=$version
+        ClassicProcessRunning=$classicProcess
+        NewOutlookInstalled=$newInstalled
+        MapiAvailable=$mapi
+        AccountCount=$accounts.Count
+        Accounts=$accounts
+        F1AccountPresent=$f1Found
+        RequiredAccount=$Sender
+        Status=$status
     }
 }
 
@@ -173,16 +335,20 @@ function Get-F1OutlookContext {
     $app = Get-F1OutlookApplication
     $ns = $app.GetNamespace("MAPI")
     if ($null -eq $ns) { throw "OUTLOOK_PROFILE_ERROR" }
-    $account = $null
-    for ($i=1; $i -le $ns.Accounts.Count; $i++) {
-        $a = $ns.Accounts.Item($i)
-        $smtp = ""
-        try { $smtp = [string]$a.SmtpAddress } catch {}
-        if ((Normalize-F1Email $smtp) -eq (Normalize-F1Email $Sender)) { $account = $a; break }
+    $account = Find-F1OutlookAccount -Namespace $ns -Sender $Sender
+    if ($null -eq $account) {
+        $detected=@(Get-F1OutlookAccountSnapshot $ns | ForEach-Object {
+            if ($_.SmtpAddress) { $_.SmtpAddress } elseif ($_.DisplayName) { $_.DisplayName } else { "account#$($_.Index)" }
+        })
+        throw "CLASSIC_OUTLOOK_PROFILE_MISSING_F1: richiesto=$Sender; rilevati=$($detected -join ', ')"
     }
-    if ($null -eq $account) { throw "ACCOUNT_F1_NON_TROVATO_IN_OUTLOOK" }
 
-    $contactsRoot = $ns.GetDefaultFolder(10)
+    $store=$null
+    try { $store=$account.DeliveryStore } catch {}
+    if ($null -eq $store) { throw "F1_DELIVERY_STORE_NOT_AVAILABLE" }
+    try { $contactsRoot=$store.GetDefaultFolder(10) } catch { throw "F1_STORE_CONTACTS_UNAVAILABLE" }
+    if ($null -eq $contactsRoot) { throw "F1_STORE_CONTACTS_UNAVAILABLE" }
+
     $contactsFolder = $null
     for ($i=1; $i -le $contactsRoot.Folders.Count; $i++) {
         $f = $contactsRoot.Folders.Item($i)
@@ -194,18 +360,28 @@ function Get-F1OutlookContext {
     if ($null -eq $contactsFolder) { throw "CARTELLA_CONTATTI_F1_NON_TROVATA" }
 
     if ($CreateFolder) {
+        $categories=$null
+        try { $categories=$store.Categories } catch {}
+        if ($null -eq $categories) { throw "F1_STORE_CATEGORIES_UNAVAILABLE" }
         foreach ($catName in @($RequiredCategory,$BlockedCategory)) {
             $found = $false
-            for ($i=1; $i -le $ns.Categories.Count; $i++) {
-                if ([string]$ns.Categories.Item($i).Name -eq $catName) { $found = $true; break }
+            for ($i=1; $i -le $categories.Count; $i++) {
+                if ([string]$categories.Item($i).Name -eq $catName) { $found = $true; break }
             }
             if (-not $found) {
-                try { $null = $ns.Categories.Add($catName) } catch { Write-F1Log -Action "CREATE_CATEGORY" -Result "WARN" -Error $_.Exception.Message }
+                try { $null = $categories.Add($catName) } catch { throw "CREATE_CATEGORY_FAILED_$catName" }
             }
         }
     }
 
-    [pscustomobject]@{ App=$app; Namespace=$ns; Account=$account; ContactsFolder=$contactsFolder }
+    [pscustomobject]@{
+        App=$app
+        Namespace=$ns
+        Account=$account
+        Store=$store
+        ContactsFolder=$contactsFolder
+        Sender=$Sender
+    }
 }
 
 function Get-F1Contacts {
@@ -250,7 +426,7 @@ function Sync-F1Unsubscribes {
     $contacts = Get-F1Contacts $Context.ContactsFolder
     $map = @{}
     foreach ($c in $contacts) { $map[$c.Email] = $c }
-    $inbox = $Context.Account.DeliveryStore.GetDefaultFolder(6)
+    $inbox = $Context.Store.GetDefaultFolder(6)
     $items = $inbox.Items
     $items.Sort("[ReceivedTime]",$true)
     $cutoff = (Get-Date).AddDays(-90)
@@ -302,12 +478,122 @@ function Render-F1Template {
 
 function Send-F1OutlookMail {
     param($Context,[string]$To,[string]$Subject,[string]$Html)
+    if (-not (Test-F1AccountMatches -Account $Context.Account -Sender $Context.Sender)) {
+        throw "SEND_ACCOUNT_MISMATCH"
+    }
     $mail = $Context.App.CreateItem(0)
     $mail.To = $To
     $mail.Subject = $Subject
     $mail.HTMLBody = $Html
     $mail.SendUsingAccount = $Context.Account
+    if (-not (Test-F1AccountMatches -Account $mail.SendUsingAccount -Sender $Context.Sender)) {
+        throw "SEND_ACCOUNT_MISMATCH"
+    }
     $mail.Send()
+}
+
+function Find-F1MailBySubject {
+    param($Folder,[string]$Subject,[datetime]$Since,[string]$Sender="")
+    if ($null -eq $Folder) { return $null }
+    $items=$Folder.Items
+    try { $items.Sort("[ReceivedTime]",$true) } catch {
+        try { $items.Sort("[SentOn]",$true) } catch {}
+    }
+    $limit=[Math]::Min([int]$items.Count,500)
+    for ($i=1; $i -le $limit; $i++) {
+        $m=$items.Item($i)
+        try {
+            $when=$null
+            try { $when=[datetime]$m.ReceivedTime } catch {}
+            if (-not $when) { try { $when=[datetime]$m.SentOn } catch {} }
+            if ($when -and $when -lt $Since) { continue }
+            if ([string]$m.Subject -ne $Subject) { continue }
+            if ($Sender) {
+                if ((Get-F1SenderAddress $m) -ne (Normalize-F1Email $Sender)) { continue }
+            }
+            return $m
+        } catch {}
+    }
+    return $null
+}
+
+function Get-F1TaskStatus {
+    $task=$null; $info=$null
+    try { $task=Get-ScheduledTask -TaskName "F1 OUTLOOK MONTHLY MAILER" -ErrorAction Stop } catch {}
+    if ($task) { try { $info=Get-ScheduledTaskInfo -TaskName "F1 OUTLOOK MONTHLY MAILER" -ErrorAction Stop } catch {} }
+    [pscustomobject]@{
+        Exists=[bool]$task
+        State=$(if($task){[string]$task.State}else{"MISSING"})
+        Enabled=$(if($task){[bool]$task.Settings.Enabled}else{$false})
+        StartWhenAvailable=$(if($task){[bool]$task.Settings.StartWhenAvailable}else{$false})
+        LastRunTime=$(if($info){$info.LastRunTime}else{$null})
+        NextRunTime=$(if($info){$info.NextRunTime}else{$null})
+        LastTaskResult=$(if($info){$info.LastTaskResult}else{$null})
+    }
+}
+
+function New-F1TaskXml {
+    param(
+        [string]$User,
+        [string]$AppDir,
+        [int]$ScheduleDay,
+        [string]$ScheduleTime,
+        [datetime]$Now=(Get-Date)
+    )
+    if ($ScheduleDay -lt 1 -or $ScheduleDay -gt 28) { throw "schedule_day deve essere compreso tra 1 e 28" }
+    if ($ScheduleTime -notmatch '^([01]\d|2[0-3]):[0-5]\d$') { throw "schedule_time deve essere HH:mm" }
+    $time=[datetime]::ParseExact($ScheduleTime,"HH:mm",[Globalization.CultureInfo]::InvariantCulture)
+    $start=Get-Date -Year $Now.Year -Month $Now.Month -Day $ScheduleDay -Hour $time.Hour -Minute $time.Minute -Second 0
+    if ($start -le $Now) { $start=$start.AddMonths(1) }
+    $main=Join-Path $AppDir "F1-Mailer.ps1"
+    $arg='-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "{0}"' -f $main
+    $xmlArg=[Security.SecurityElement]::Escape($arg)
+    $xmlWork=[Security.SecurityElement]::Escape($AppDir)
+    $xmlUser=[Security.SecurityElement]::Escape($User)
+    $startText=$start.ToString("yyyy-MM-ddTHH:mm:ss")
+    $months="<January/><February/><March/><April/><May/><June/><July/><August/><September/><October/><November/><December/>"
+    return @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo><Description>Invio mensile F1 tramite Outlook Classic.</Description></RegistrationInfo>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>$startText</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByMonth>
+        <DaysOfMonth><Day>$ScheduleDay</Day></DaysOfMonth>
+        <Months>$months</Months>
+      </ScheduleByMonth>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>$xmlUser</UserId>
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>true</RunOnlyIfNetworkAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <ExecutionTimeLimit>PT4H</ExecutionTimeLimit>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>powershell.exe</Command>
+      <Arguments>$xmlArg</Arguments>
+      <WorkingDirectory>$xmlWork</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
+"@
 }
 
 function Acquire-F1Mutex {
