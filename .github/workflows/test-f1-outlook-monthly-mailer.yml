@@ -51,8 +51,12 @@ jobs:
           $ErrorActionPreference = "Stop"
           $tag = "v1.0.0"
           $zip = "dist\F1-Outlook-Monthly-Mailer-v1.0.0.zip"
+          $oldPreference = $ErrorActionPreference
+          $ErrorActionPreference = "SilentlyContinue"
           gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
-          if ($LASTEXITCODE -ne 0) {
+          $releaseExists = ($LASTEXITCODE -eq 0)
+          $ErrorActionPreference = $oldPreference
+          if (-not $releaseExists) {
             gh release create $tag $zip --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "F1 Outlook Monthly Mailer v1.0.0" --notes "Windows + PowerShell + Outlook Classic. Nessun Supabase, Graph, Azure, SMTP, Python o Power Automate."
           } else {
             gh release upload $tag $zip --repo $env:GITHUB_REPOSITORY --clobber
