@@ -1,0 +1,10 @@
+{
+  "schedule_day": 1,
+  "schedule_time": "09:00",
+  "delay_seconds": 30,
+  "max_emails_per_run": 100,
+  "contacts_folder": "F1 CAMPAGNA EMAIL",
+  "required_category": "F1-CONSENSO",
+  "blocked_category": "F1-DISCRITTO",
+  "sender": "F1IMMOBILIARESUSA@OUTLOOK.IT"
+}

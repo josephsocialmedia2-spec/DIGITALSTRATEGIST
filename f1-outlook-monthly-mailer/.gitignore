@@ -1,0 +1,10 @@
+*.env
+.env
+settings.local.json
+credentials*
+logs/
+reports/
+state.json
+*.log
+dist/
+build/
