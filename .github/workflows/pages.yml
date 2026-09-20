@@ -50,6 +50,10 @@ jobs:
           mkdir -p _site/campagna-email-f1
           cp -a campagna-email-f1/. _site/campagna-email-f1/
 
+          # Rebuild the exact Agent Pricing JPG from text chunks.
+          mkdir -p _site/campagna-email-f1/assets
+          cat campagna-email-f1/assets-src/vendere-casa-f1.b64.* | tr -d '\\r\\n' | base64 --decode > _site/campagna-email-f1/assets/vendere-casa-f1.jpg
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
