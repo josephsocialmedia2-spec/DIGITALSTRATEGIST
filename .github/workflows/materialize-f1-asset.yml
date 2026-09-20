@@ -1,0 +1,70 @@
+name: Materialize verified F1 Agent Pricing asset
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/materialize-f1-asset.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebuild and verify exact JPG
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p campagna-email-f1/assets
+          cat campagna-email-f1/assets-build/part-*.b64 | tr -d '\r\n' | base64 --decode > /tmp/vendere-casa-f1.jpg
+
+          size="$(wc -c < /tmp/vendere-casa-f1.jpg | tr -d ' ')"
+          test "$size" = "75594"
+
+          echo "b83e56df77877f41eb0a1828daa78b0b76ff383f5f29dd321e780ccb7d69536e  /tmp/vendere-casa-f1.jpg" | sha256sum -c -
+
+          cp /tmp/vendere-casa-f1.jpg campagna-email-f1/assets/vendere-casa-f1.jpg
+          test "$(wc -c < campagna-email-f1/assets/vendere-casa-f1.jpg | tr -d ' ')" = "75594"
+          echo "b83e56df77877f41eb0a1828daa78b0b76ff383f5f29dd321e780ccb7d69536e  campagna-email-f1/assets/vendere-casa-f1.jpg" | sha256sum -c -
+
+      - name: Remove temporary image workarounds and restore Pages workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path(".github/workflows/pages.yml")
+          s = p.read_text()
+          old = """
+          # Rebuild the exact Agent Pricing JPG from text chunks.
+          mkdir -p _site/campagna-email-f1/assets
+          cat campagna-email-f1/assets-src/vendere-casa-f1.b64.* | tr -d '\\\\r\\\\n' | base64 --decode > _site/campagna-email-f1/assets/vendere-casa-f1.jpg
+"""
+          if old not in s:
+              raise SystemExit("Temporary Pages image-rebuild block not found")
+          p.write_text(s.replace(old, "\n"))
+          PY
+
+          rm -rf campagna-email-f1/assets-src
+          rm -rf campagna-email-f1/assets-exact
+          rm -rf campagna-email-f1/assets-build
+          rm -f .github/workflows/materialize-f1-asset.yml
+
+      - name: Commit verified binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --stat
+          git commit -m "Finalize verified F1 Agent Pricing image asset"
+          git push origin HEAD:main
