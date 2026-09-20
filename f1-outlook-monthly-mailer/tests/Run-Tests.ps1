@@ -60,6 +60,7 @@ Get-ChildItem $root -Recurse -Include *.ps1,*.psm1 | ForEach-Object {
     [System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$tokens,[ref]$errors) | Out-Null
     if ($errors.Count -gt 0) { $parseErrors += "$($_.Name): $($errors[0].Message)" }
 }
+if ($parseErrors.Count -gt 0) { $parseErrors | ForEach-Object { Write-Host "PARSE_ERROR $_" } }
 Assert-True ($parseErrors.Count -eq 0) "PowerShell syntax"
 
 Remove-Item $env:LOCALAPPDATA -Recurse -Force -ErrorAction SilentlyContinue
