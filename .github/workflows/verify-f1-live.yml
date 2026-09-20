@@ -1,0 +1,44 @@
+name: Verify F1 Agent Pricing live
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/verify-f1-live.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify public image and pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE='https://josephsocialmedia2-spec.github.io/DIGITALSTRATEGIST/campagna-email-f1/assets/vendere-casa-f1.jpg?v=agent-pricing-production-20260920-02'
+          PAGE='https://josephsocialmedia2-spec.github.io/DIGITALSTRATEGIST/campagna-email-f1/index.html?v=agent-pricing-production-20260920-02'
+          FORM='https://josephsocialmedia2-spec.github.io/DIGITALSTRATEGIST/campagna-email-f1/valutazione.html?v=agent-pricing-production-20260920-02'
+
+          for n in $(seq 1 18); do
+            code="$(curl -L -sS -o /tmp/live.jpg -D /tmp/headers -w '%{http_code}' "$IMAGE" || true)"
+            size="$(wc -c < /tmp/live.jpg 2>/dev/null | tr -d ' ' || true)"
+            hash="$(sha256sum /tmp/live.jpg 2>/dev/null | awk '{print $1}' || true)"
+            ctype="$(awk 'BEGIN{IGNORECASE=1} /^content-type:/{gsub("\r",""); print $2}' /tmp/headers | tail -1 || true)"
+            echo "attempt=$n http=$code content_type=$ctype size=$size sha256=$hash"
+            if [ "$code" = "200" ] && [ "$size" = "75594" ] && [ "$hash" = "b83e56df77877f41eb0a1828daa78b0b76ff383f5f29dd321e780ccb7d69536e" ]; then
+              case "$ctype" in image/jpeg*|image/jpg*) break ;; esac
+            fi
+            if [ "$n" = "18" ]; then exit 1; fi
+            sleep 5
+          done
+
+          curl -LfsS "$PAGE" -o /tmp/page.html
+          grep -Fq 'AGENT PRICING F1 IMMOBILIARE' /tmp/page.html
+          test "$(grep -Fo 'agent-pricing-production-20260920-02' /tmp/page.html | wc -l | tr -d ' ')" -ge 2
+          ! grep -Fq 'f1-valutazione-banner' /tmp/page.html
+          curl -LfsS "$FORM" -o /tmp/form.html
+          grep -Fq 'RICHIEDI IL TUO AGENT PRICING GRATUITO' /tmp/form.html
+          echo 'LIVE_VERIFY_OK'
