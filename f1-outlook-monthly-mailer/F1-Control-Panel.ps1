@@ -11,7 +11,7 @@ $form.StartPosition="CenterScreen"
 $form.Font=New-Object Drawing.Font("Segoe UI",10)
 
 $title=New-Object Windows.Forms.Label
-$title.Text="F1 OUTLOOK MONTHLY MAILER v1.0.1"
+$title.Text="F1 OUTLOOK MONTHLY MAILER v1.0.2"
 $title.Font=New-Object Drawing.Font("Segoe UI",16,[Drawing.FontStyle]::Bold)
 $title.AutoSize=$true
 $title.Location=New-Object Drawing.Point(24,20)

@@ -30,7 +30,7 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           New-Item -ItemType Directory -Path dist -Force | Out-Null
-          $zip = "dist\F1-Outlook-Monthly-Mailer-v1.0.1.zip"
+          $zip = "dist\F1-Outlook-Monthly-Mailer-v1.0.2.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
           Compress-Archive -Path ".\f1-outlook-monthly-mailer\*" -DestinationPath $zip -CompressionLevel Optimal
           Get-FileHash $zip -Algorithm SHA256 | Format-List
@@ -38,26 +38,26 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: F1-Outlook-Monthly-Mailer-Windows-v1.0.1
-          path: dist/F1-Outlook-Monthly-Mailer-v1.0.1.zip
+          name: F1-Outlook-Monthly-Mailer-Windows-v1.0.2
+          path: dist/F1-Outlook-Monthly-Mailer-v1.0.2.zip
           if-no-files-found: error
 
-      - name: Publish or refresh v1.0.1 release
+      - name: Publish or refresh v1.0.2 release
         if: github.ref == 'refs/heads/main'
         shell: powershell
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $ErrorActionPreference = "Stop"
-          $tag = "v1.0.1"
-          $zip = "dist\F1-Outlook-Monthly-Mailer-v1.0.1.zip"
+          $tag = "v1.0.2"
+          $zip = "dist\F1-Outlook-Monthly-Mailer-v1.0.2.zip"
           $oldPreference = $ErrorActionPreference
           $ErrorActionPreference = "SilentlyContinue"
           gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
           $releaseExists = ($LASTEXITCODE -eq 0)
           $ErrorActionPreference = $oldPreference
           if (-not $releaseExists) {
-            gh release create $tag $zip --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "F1 Outlook Monthly Mailer v1.0.1" --notes "Diagnostica Outlook Classic/MAPI, onboarding account F1, controllo SendUsingAccount, verifica Posta inviata/ricezione e pannello aggiornato."
+            gh release create $tag $zip --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "F1 Outlook Monthly Mailer v1.0.2" --notes "Correzione verifica SendUsingAccount COM reale: salvataggio draft, rilettura account assegnato, retry sicuro e blocco in caso di mismatch."
           } else {
             gh release upload $tag $zip --repo $env:GITHUB_REPOSITORY --clobber
           }

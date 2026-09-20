@@ -1,4 +1,4 @@
-# F1 Outlook Monthly Mailer v1.0.1
+# F1 Outlook Monthly Mailer v1.0.2
 
 Applicazione locale Windows che invia la campagna mensile F1 esclusivamente tramite Outlook Classic e l'account F1IMMOBILIARESUSA@OUTLOOK.IT.
 
@@ -8,7 +8,9 @@ Windows Task Scheduler -> PowerShell -> Outlook Classic COM/MAPI -> account F1 -
 
 Non usa Supabase, Microsoft Graph, Azure, SMTP, Python, Node.js, Power Automate o servizi di invio esterni.
 
-## Novita 1.0.1
+## Novita 1.0.2
+
+Hotfix invio COM: SendUsingAccount viene ora assegnato, il messaggio viene salvato come draft, l'account viene riletto e l'assegnazione viene ritentata una volta prima di bloccare l'invio.
 
 - Diagnose-Outlook.ps1 distingue Nuovo Outlook, Outlook Classic, disponibilita MAPI e account realmente visibili a COM.
 - Setup-F1-Outlook-Account.ps1 apre il percorso di gestione profili di Outlook Classic e richiede esclusivamente l'aggiunta dell'account F1.
@@ -22,7 +24,7 @@ Non usa Supabase, Microsoft Graph, Azure, SMTP, Python, Node.js, Power Automate 
 
 ## Installazione / aggiornamento
 
-Estrai la Release v1.0.1 ed esegui Install-F1-Mailer.ps1.
+Estrai la Release v1.0.2 ed esegui Install-F1-Mailer.ps1.
 
 Se F1IMMOBILIARESUSA@OUTLOOK.IT e presente solo nel Nuovo Outlook, l'installer non invia e avvia Setup-F1-Outlook-Account.ps1. Il requisito valido e che Outlook Classic/MAPI mostri l'account F1.
 

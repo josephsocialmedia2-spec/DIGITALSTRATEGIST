@@ -1,4 +1,6 @@
-F1 OUTLOOK MONTHLY MAILER v1.0.1
+F1 OUTLOOK MONTHLY MAILER v1.0.2
+
+Hotfix: verifica SendUsingAccount compatibile con il comportamento COM reale di Outlook Classic.
 
 TECNOLOGIA
 Windows + PowerShell + Outlook Classic COM/MAPI + Windows Task Scheduler.

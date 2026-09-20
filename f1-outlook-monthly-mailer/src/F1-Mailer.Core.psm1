@@ -481,14 +481,34 @@ function Send-F1OutlookMail {
     if (-not (Test-F1AccountMatches -Account $Context.Account -Sender $Context.Sender)) {
         throw "SEND_ACCOUNT_MISMATCH"
     }
+
     $mail = $Context.App.CreateItem(0)
     $mail.To = $To
     $mail.Subject = $Subject
     $mail.HTMLBody = $Html
+
     $mail.SendUsingAccount = $Context.Account
-    if (-not (Test-F1AccountMatches -Account $mail.SendUsingAccount -Sender $Context.Sender)) {
+    try { $mail.Save() } catch {}
+
+    $assigned=$null
+    try { $assigned=$mail.SendUsingAccount } catch {}
+
+    if ($null -eq $assigned -or -not (Test-F1AccountMatches -Account $assigned -Sender $Context.Sender)) {
+        $mail.SendUsingAccount = $Context.Account
+        try { $mail.Save() } catch {}
+        try { $assigned=$mail.SendUsingAccount } catch { $assigned=$null }
+    }
+
+    if ($null -ne $assigned -and -not (Test-F1AccountMatches -Account $assigned -Sender $Context.Sender)) {
+        try { $mail.Delete() } catch {}
         throw "SEND_ACCOUNT_MISMATCH"
     }
+
+    if ($null -eq $assigned) {
+        try { $mail.Delete() } catch {}
+        throw "SEND_ACCOUNT_UNVERIFIED"
+    }
+
     $mail.Send()
 }
 

@@ -75,7 +75,7 @@ $task=Get-F1TaskStatus
 
 Write-Host ""
 Write-Host "INSTALLAZIONE COMPLETATA"
-Write-Host "Versione: 1.0.1"
+Write-Host "Versione: 1.0.2"
 Write-Host "Task: F1 OUTLOOK MONTHLY MAILER"
 Write-Host "Task attiva: $($task.Enabled)"
 Write-Host "StartWhenAvailable: $($task.StartWhenAvailable)"
