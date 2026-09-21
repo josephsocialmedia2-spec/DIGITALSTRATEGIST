@@ -1,4 +1,7 @@
-F1 OUTLOOK 14-DAY MAILER v1.1.0
+F1 OUTLOOK 14-DAY MAILER v1.1.1
+
+HOTFIX 1.1.1
+Compatibilita con Outlook Classic quando SendUsingAccount viene accettato ma il getter COM restituisce null. Il messaggio nasce nelle Bozze dello store F1 e viene verificato nella Posta inviata F1.
 
 OBIETTIVO
 Invio automatico Agent Pricing ogni 14 giorni tramite Windows + PowerShell + Outlook Classic COM/MAPI + Windows Task Scheduler.

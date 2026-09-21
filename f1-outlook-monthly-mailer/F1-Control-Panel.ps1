@@ -11,7 +11,7 @@ $form.StartPosition="CenterScreen"
 $form.Font=New-Object Drawing.Font("Segoe UI",10)
 
 $title=New-Object Windows.Forms.Label
-$title.Text="F1 OUTLOOK 14-DAY MAILER v1.1.0"
+$title.Text="F1 OUTLOOK 14-DAY MAILER v1.1.1"
 $title.Font=New-Object Drawing.Font("Segoe UI",16,[Drawing.FontStyle]::Bold)
 $title.AutoSize=$true
 $title.Location=New-Object Drawing.Point(24,20)
@@ -65,7 +65,7 @@ function Refresh-Panel {
         $daysToNext=[Math]::Max(0,[Math]::Ceiling(($next-$now).TotalDays))
 
         $status.Text=@"
-VERSIONE: 1.1.0
+VERSIONE: 1.1.1
 OUTLOOK CLASSIC: $(if($d.ClassicInstalled -and $d.MapiAvailable){'OK'}else{'ERRORE'})
 ACCOUNT F1: $(if($d.F1AccountPresent){'OK'}else{'MANCANTE'})
 ACCOUNT TROVATI: $($d.AccountCount)

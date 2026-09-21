@@ -551,48 +551,159 @@ function Render-F1Template {
 
 function Send-F1OutlookMail {
     param($Context,[string]$To,[string]$Subject,[string]$Html)
+
     if (-not (Test-F1AccountMatches -Account $Context.Account -Sender $Context.Sender)) {
         throw "SEND_ACCOUNT_MISMATCH"
     }
-
-    $mail = $Context.App.CreateItem(0)
-    $mail.To = $To
-    $mail.Subject = $Subject
-    $mail.HTMLBody = $Html
-
-    try {
-        $mail.SendUsingAccount = $Context.Account
-        try { $mail.Save() } catch {}
-
-        $assigned=$null
-        try { $assigned=$mail.SendUsingAccount } catch {}
-
-        if ($null -eq $assigned -or -not (Test-F1AccountMatches -Account $assigned -Sender $Context.Sender)) {
-            $mail.SendUsingAccount = $Context.Account
-            try { $mail.Save() } catch {}
-            try { $assigned=$mail.SendUsingAccount } catch { $assigned=$null }
-        }
-
-        if ($null -ne $assigned -and -not (Test-F1AccountMatches -Account $assigned -Sender $Context.Sender)) {
-            try { $mail.Delete() } catch {}
-            throw "SEND_ACCOUNT_MISMATCH"
-        }
-        if ($null -eq $assigned) {
-            try { $mail.Delete() } catch {}
-            throw "SEND_ACCOUNT_UNVERIFIED"
-        }
-    } catch {
-        if ($_.Exception.Message -like "SEND_ACCOUNT_*") { throw }
-        try { $mail.Delete() } catch {}
-        throw "SEND_PREPARE_FAILED: $($_.Exception.Message)"
+    if ($null -eq $Context.Store) {
+        throw "F1_DELIVERY_STORE_NOT_AVAILABLE"
     }
 
+    $drafts=$null
+    try { $drafts=$Context.Store.GetDefaultFolder(16) } catch {}
+    if ($null -eq $drafts) {
+        throw "F1_DRAFTS_STORE_UNAVAILABLE"
+    }
+
+    $mail=$null
+    try { $mail=$drafts.Items.Add("IPM.Note") } catch {}
+    if ($null -eq $mail) {
+        throw "F1_DRAFT_CREATE_FAILED"
+    }
+
+    $mail.To=$To
+    $mail.Subject=$Subject
+    $mail.HTMLBody=$Html
+
+    $getterVerified=$false
+    $assigned=$null
+
+    for($attempt=1; $attempt -le 2; $attempt++){
+        try { $mail.SendUsingAccount=$Context.Account } catch {
+            try { $mail.Delete() } catch {}
+            throw "SEND_ACCOUNT_ASSIGN_FAILED: $($_.Exception.Message)"
+        }
+
+        try { $mail.Save() } catch {}
+
+        try { $assigned=$mail.SendUsingAccount } catch { $assigned=$null }
+
+        if($null -ne $assigned){
+            if(-not (Test-F1AccountMatches -Account $assigned -Sender $Context.Sender)){
+                try { $mail.Delete() } catch {}
+                throw "SEND_ACCOUNT_MISMATCH"
+            }
+            $getterVerified=$true
+            break
+        }
+    }
+
+    $sendStarted=Get-Date
     try {
         $mail.Send()
     } catch {
         throw "SEND_UNCERTAIN: $($_.Exception.Message)"
     }
+
+    if($getterVerified){
+        return [pscustomobject]@{
+            Status="SENT"
+            Verification="SENDUSINGACCOUNT"
+            SentAt=$sendStarted
+        }
+    }
+
+    $sentFolder=$null
+    try { $sentFolder=$Context.Store.GetDefaultFolder(5) } catch {}
+    if($null -eq $sentFolder){
+        throw "SEND_UNCERTAIN: F1_SENT_FOLDER_UNAVAILABLE"
+    }
+
+    $deadline=(Get-Date).AddSeconds(15)
+    do {
+        $found=Find-F1SentMail -Folder $sentFolder -Subject $Subject -To $To -Since $sendStarted.AddMinutes(-1)
+        if($found){
+            return [pscustomobject]@{
+                Status="SENT"
+                Verification="F1_SENT_ITEMS"
+                SentAt=$sendStarted
+            }
+        }
+        Start-Sleep -Milliseconds 750
+    } while((Get-Date) -lt $deadline)
+
+    throw "SEND_UNCERTAIN: SENDUSINGACCOUNT_GETTER_NULL_AND_F1_SENT_ITEM_NOT_CONFIRMED"
 }
+function Get-F1RecipientAddress {
+    param($Recipient)
+    if($null -eq $Recipient){ return "" }
+
+    try {
+        $address=[string]$Recipient.Address
+        if($address -and $address -notlike "/O=*"){ return Normalize-F1Email $address }
+    } catch {}
+
+    try {
+        $entry=$Recipient.AddressEntry
+        if($entry){
+            try {
+                $ex=$entry.GetExchangeUser()
+                if($ex -and $ex.PrimarySmtpAddress){
+                    return Normalize-F1Email ([string]$ex.PrimarySmtpAddress)
+                }
+            } catch {}
+            try {
+                $address=[string]$entry.Address
+                if($address -and $address -notlike "/O=*"){ return Normalize-F1Email $address }
+            } catch {}
+        }
+    } catch {}
+
+    return ""
+}
+
+function Test-F1MailRecipientMatches {
+    param($MailItem,[string]$Email)
+    $target=Normalize-F1Email $Email
+
+    try {
+        $toText=Normalize-F1Email ([string]$MailItem.To)
+        if($toText -eq $target -or $toText -like "*$target*"){ return $true }
+    } catch {}
+
+    try {
+        for($i=1;$i -le $MailItem.Recipients.Count;$i++){
+            $r=$MailItem.Recipients.Item($i)
+            if((Get-F1RecipientAddress $r) -eq $target){ return $true }
+        }
+    } catch {}
+
+    return $false
+}
+
+function Find-F1SentMail {
+    param($Folder,[string]$Subject,[string]$To,[datetime]$Since)
+
+    if($null -eq $Folder){ return $null }
+
+    $items=$Folder.Items
+    try { $items.Sort("[SentOn]",$true) } catch {}
+
+    $limit=[Math]::Min([int]$items.Count,200)
+    for($i=1;$i -le $limit;$i++){
+        $m=$items.Item($i)
+        try {
+            $sentOn=[datetime]$m.SentOn
+            if($sentOn -lt $Since){ break }
+            if([string]$m.Subject -ne $Subject){ continue }
+            if(-not (Test-F1MailRecipientMatches -MailItem $m -Email $To)){ continue }
+            return $m
+        } catch {}
+    }
+
+    return $null
+}
+
 function Find-F1MailBySubject {
     param($Folder,[string]$Subject,[datetime]$Since,[string]$Sender="")
     if ($null -eq $Folder) { return $null }

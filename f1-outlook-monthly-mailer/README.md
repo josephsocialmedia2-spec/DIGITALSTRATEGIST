@@ -1,4 +1,4 @@
-# F1 Outlook 14-Day Mailer v1.1.0
+# F1 Outlook 14-Day Mailer v1.1.1
 
 Sistema locale Windows per inviare automaticamente la campagna Agent Pricing ogni 14 giorni tramite Outlook Classic.
 
@@ -83,6 +83,10 @@ Categorie:
 F1-DISCRITTO prevale sempre su F1-CONSENSO.
 
 Prima di ogni ciclo il programma cerca DISISCRIVIMI nelle risposte e aggiorna il contatto.
+
+## Hotfix 1.1.1
+
+Su alcune installazioni Outlook Classic accetta il setter SendUsingAccount ma il getter restituisce null. Il mailer crea ora il messaggio direttamente nella cartella Bozze dello store F1, assegna comunque l'account F1 e, se il getter resta null, verifica dopo l'invio che il messaggio sia comparso nella Posta inviata dello store F1. Se la conferma manca, lo stato resta UNCERTAIN e il messaggio non viene reinviato automaticamente.
 
 ## Invio sicuro
 
