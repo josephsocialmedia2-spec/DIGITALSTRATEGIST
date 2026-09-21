@@ -22,10 +22,8 @@ $settingsPath=Join-Path $base "settings.json"
 if (-not (Test-Path $settingsPath)) {
     Copy-Item (Join-Path $appDir "settings.example.json") $settingsPath
 }
-$s=Get-F1Settings
 
-if ([int]$s.schedule_day -lt 1 -or [int]$s.schedule_day -gt 28) { throw "schedule_day deve essere compreso tra 1 e 28" }
-if ([string]$s.schedule_time -notmatch '^([01]\d|2[0-3]):[0-5]\d$') { throw "schedule_time deve essere HH:mm" }
+$s=Get-F1Settings
 
 Write-Host "Verifica Outlook Classic e account F1..."
 $d=Get-F1OutlookDiagnostics -Sender $s.sender
@@ -69,15 +67,19 @@ Write-Host "F1-CONSENSO: OK"
 Write-Host "F1-DISCRITTO: OK"
 
 $user=[Security.Principal.WindowsIdentity]::GetCurrent().Name
-$xml=New-F1TaskXml -User $user -AppDir $appDir -ScheduleDay ([int]$s.schedule_day) -ScheduleTime ([string]$s.schedule_time)
+$xml=New-F1TaskXml -User $user -AppDir $appDir -FirstRunDate ([string]$s.first_run_date) -ScheduleTime ([string]$s.schedule_time) -IntervalDays ([int]$s.interval_days)
+
 Register-ScheduledTask -TaskName "F1 OUTLOOK MONTHLY MAILER" -Xml $xml -Force | Out-Null
 $task=Get-F1TaskStatus
 
 Write-Host ""
 Write-Host "INSTALLAZIONE COMPLETATA"
-Write-Host "Versione: 1.0.2"
+Write-Host "Versione: 1.1.0"
+Write-Host "Sistema: F1 OUTLOOK 14-DAY MAILER"
 Write-Host "Task: F1 OUTLOOK MONTHLY MAILER"
 Write-Host "Task attiva: $($task.Enabled)"
+Write-Host "Intervallo: $($s.interval_days) giorni"
+Write-Host "Prima esecuzione anchor: $($s.first_run_date) $($s.schedule_time)"
 Write-Host "StartWhenAvailable: $($task.StartWhenAvailable)"
 Write-Host "Prossima esecuzione: $($task.NextRunTime)"
 Write-Host "Configurazione: $settingsPath"

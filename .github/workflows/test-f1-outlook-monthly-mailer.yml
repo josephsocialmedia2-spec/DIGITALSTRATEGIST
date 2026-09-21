@@ -1,4 +1,4 @@
-name: Test and package F1 Outlook Monthly Mailer
+name: Test and package F1 Outlook 14-Day Mailer
 
 on:
   push:
@@ -25,12 +25,46 @@ jobs:
           $ErrorActionPreference = "Stop"
           & ".\f1-outlook-monthly-mailer\tests\Run-Tests.ps1"
 
+      - name: Validate package contents
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $required = @(
+            "F1-Mailer.ps1",
+            "F1-Control-Panel.ps1",
+            "Install-F1-Mailer.ps1",
+            "Uninstall-F1-Mailer.ps1",
+            "Run-F1-Mailer-Now.ps1",
+            "Test-Outlook.ps1",
+            "Test-Email.ps1",
+            "Verify-Test-Email.ps1",
+            "Diagnose-Outlook.ps1",
+            "Setup-F1-Outlook-Account.ps1",
+            "Open-Logs.ps1",
+            "Verify-Task-14Days.ps1",
+            "Show-Next-Runs.ps1",
+            "README.md",
+            "README.txt",
+            "VERSION",
+            "settings.example.json"
+          )
+          foreach($file in $required) {
+            $path = Join-Path ".\f1-outlook-monthly-mailer" $file
+            if(-not (Test-Path $path)) { throw "PACKAGE_FILE_MISSING: $file" }
+          }
+          foreach($dir in @("src","templates","tests")) {
+            $path = Join-Path ".\f1-outlook-monthly-mailer" $dir
+            if(-not (Test-Path $path)) { throw "PACKAGE_DIR_MISSING: $dir" }
+          }
+          $version=(Get-Content ".\f1-outlook-monthly-mailer\VERSION" -Raw).Trim()
+          if($version -ne "1.1.0") { throw "VERSION_MISMATCH: $version" }
+
       - name: Package ZIP
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
           New-Item -ItemType Directory -Path dist -Force | Out-Null
-          $zip = "dist\F1-Outlook-Monthly-Mailer-v1.0.2.zip"
+          $zip = "dist\F1-Outlook-14-Day-Mailer-v1.1.0.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
           Compress-Archive -Path ".\f1-outlook-monthly-mailer\*" -DestinationPath $zip -CompressionLevel Optimal
           Get-FileHash $zip -Algorithm SHA256 | Format-List
@@ -38,26 +72,26 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: F1-Outlook-Monthly-Mailer-Windows-v1.0.2
-          path: dist/F1-Outlook-Monthly-Mailer-v1.0.2.zip
+          name: F1-Outlook-14-Day-Mailer-v1.1.0
+          path: dist/F1-Outlook-14-Day-Mailer-v1.1.0.zip
           if-no-files-found: error
 
-      - name: Publish or refresh v1.0.2 release
+      - name: Publish or refresh v1.1.0 release
         if: github.ref == 'refs/heads/main'
         shell: powershell
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $ErrorActionPreference = "Stop"
-          $tag = "v1.0.2"
-          $zip = "dist\F1-Outlook-Monthly-Mailer-v1.0.2.zip"
+          $tag = "v1.1.0"
+          $zip = "dist\F1-Outlook-14-Day-Mailer-v1.1.0.zip"
           $oldPreference = $ErrorActionPreference
           $ErrorActionPreference = "SilentlyContinue"
           gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
           $releaseExists = ($LASTEXITCODE -eq 0)
           $ErrorActionPreference = $oldPreference
           if (-not $releaseExists) {
-            gh release create $tag $zip --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "F1 Outlook Monthly Mailer v1.0.2" --notes "Correzione verifica SendUsingAccount COM reale: salvataggio draft, rilettura account assegnato, retry sicuro e blocco in caso di mismatch."
+            gh release create $tag $zip --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "F1 Outlook 14-Day Mailer v1.1.0" --notes "Schedulazione Windows Task Scheduler ogni 14 giorni, chiave ciclo giornaliera, migrazione settings/task, anti-duplicazione conservativa e pannello aggiornato."
           } else {
             gh release upload $tag $zip --repo $env:GITHUB_REPOSITORY --clobber
           }

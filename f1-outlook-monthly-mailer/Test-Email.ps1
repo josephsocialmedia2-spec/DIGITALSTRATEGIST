@@ -5,8 +5,8 @@ try {
     $s=Get-F1Settings
     $c=Get-F1OutlookContext -Sender $s.sender -ContactsFolderName $s.contacts_folder -CreateFolder -RequiredCategory $s.required_category -BlockedCategory $s.blocked_category
     $template=Get-Content (Join-Path $PSScriptRoot "templates\agent-pricing.html") -Raw -Encoding UTF8
-    $html=Render-F1Template -Template $template -FirstName "F1" -LastName "" -Email $s.sender -CampaignKey "TEST-F1-OUTLOOK"
-    Send-F1OutlookMail -Context $c -To $s.sender -Subject "TEST F1 - OUTLOOK MONTHLY MAILER" -Html $html
+    $html=Render-F1Template -Template $template -FirstName "F1" -LastName "" -Email $s.sender -CampaignKey "TEST-F1-OUTLOOK-14-DAY"
+    Send-F1OutlookMail -Context $c -To $s.sender -Subject "TEST F1 - OUTLOOK 14 DAY MAILER" -Html $html
     Write-F1Log -Action "TEST_SENT" -Email $s.sender -Result "SENT"
     Write-Host "EMAIL TEST CONSEGNATA A OUTLOOK PER INVIO: $($s.sender)"
     Write-Host "ESEGUI Verify-Test-Email.ps1 PER CONTROLLARE POSTA INVIATA E RICEZIONE."

@@ -1,41 +1,48 @@
-F1 OUTLOOK MONTHLY MAILER v1.0.2
+F1 OUTLOOK 14-DAY MAILER v1.1.0
 
-Hotfix: verifica SendUsingAccount compatibile con il comportamento COM reale di Outlook Classic.
-
-TECNOLOGIA
-Windows + PowerShell + Outlook Classic COM/MAPI + Windows Task Scheduler.
-Non usa Supabase, Graph, Azure, SMTP, Python, Node.js o Power Automate.
+OBIETTIVO
+Invio automatico Agent Pricing ogni 14 giorni tramite Windows + PowerShell + Outlook Classic COM/MAPI + Windows Task Scheduler.
 
 MITTENTE OBBLIGATORIO
 F1IMMOBILIARESUSA@OUTLOOK.IT
-Nessun fallback su altri account.
 
-INSTALLAZIONE / AGGIORNAMENTO
-1. Estrai lo ZIP.
-2. Esegui Install-F1-Mailer.ps1 con PowerShell.
-3. L'installer conserva settings.json, state.json, log e report esistenti.
-4. Se F1 manca dal profilo MAPI, viene avviato Setup-F1-Outlook-Account.ps1.
+TASK
+Nome storico mantenuto: F1 OUTLOOK MONTHLY MAILER
+Nuova cadenza: ogni 14 giorni
+StartWhenAvailable: true
 
-DIAGNOSTICA
-Diagnose-Outlook.ps1 distingue Outlook Classic, Nuovo Outlook e account MAPI.
-Stati principali:
-NEW_OUTLOOK_ONLY
-CLASSIC_OUTLOOK_AVAILABLE
-CLASSIC_OUTLOOK_PROFILE_MISSING_F1
-F1_ACCOUNT_FOUND
+DEFAULT
+first_run_date: 2026-09-22
+schedule_time: 09:00
+interval_days: 14
 
-TEST
-Test-Outlook.ps1 verifica Outlook Classic, account F1, cartella contatti e categorie.
-Test-Email.ps1 invia UNA sola email da F1 a F1.
-Verify-Test-Email.ps1 controlla Posta inviata e Posta in arrivo F1.
+CICLO
+F1-AGENT-PRICING-YYYY-MM-DD
 
 CONTATTI
-Cartella dello store F1: F1 CAMPAGNA EMAIL
-Categoria necessaria: F1-CONSENSO
-Categoria di blocco: F1-DISCRITTO
+F1 CAMPAGNA EMAIL
+F1-CONSENSO = autorizzato
+F1-DISCRITTO = blocco assoluto
+
+TEST
+Test-Outlook.ps1
+Test-Email.ps1
+Verify-Test-Email.ps1
+Verify-Task-14Days.ps1
+Show-Next-Runs.ps1
+
+OGGETTO TEST
+TEST F1 - OUTLOOK 14 DAY MAILER
+
+INSTALLAZIONE
+Eseguire Install-F1-Mailer.ps1.
+L'installer conserva settings.json, state.json, log e report e aggiorna il vecchio task senza duplicarlo.
 
 CONFIGURAZIONE
 %LOCALAPPDATA%\F1OutlookMonthlyMailer\settings.json
+
+STATO
+%LOCALAPPDATA%\F1OutlookMonthlyMailer\state.json
 
 LOG
 %LOCALAPPDATA%\F1OutlookMonthlyMailer\logs
@@ -43,7 +50,4 @@ LOG
 REPORT
 %LOCALAPPDATA%\F1OutlookMonthlyMailer\reports
 
-PANNELLO
-F1-Control-Panel.ps1
-
-La campagna reale non parte durante l'installazione.
+La campagna reale NON parte durante installazione o test.

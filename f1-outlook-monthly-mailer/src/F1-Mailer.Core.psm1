@@ -32,12 +32,36 @@ function Get-F1Settings {
     $path = Get-F1SettingsPath
     if (-not (Test-Path $path)) { throw "SETTINGS_NOT_FOUND" }
     $s = Get-Content $path -Raw -Encoding UTF8 | ConvertFrom-Json
-    foreach ($required in @("schedule_day","schedule_time","delay_seconds","max_emails_per_run","contacts_folder","required_category","blocked_category","sender")) {
+    $changed=$false
+
+    if (-not ($s.PSObject.Properties.Name -contains "interval_days")) {
+        $s | Add-Member -NotePropertyName interval_days -NotePropertyValue 14 -Force
+        $changed=$true
+    }
+    if (-not ($s.PSObject.Properties.Name -contains "first_run_date")) {
+        $s | Add-Member -NotePropertyName first_run_date -NotePropertyValue ((Get-Date).Date.AddDays(1).ToString("yyyy-MM-dd")) -Force
+        $changed=$true
+    }
+    if (-not ($s.PSObject.Properties.Name -contains "schedule_time")) {
+        $s | Add-Member -NotePropertyName schedule_time -NotePropertyValue "09:00" -Force
+        $changed=$true
+    }
+
+    foreach ($required in @("first_run_date","schedule_time","interval_days","delay_seconds","max_emails_per_run","contacts_folder","required_category","blocked_category","sender")) {
         if (-not ($s.PSObject.Properties.Name -contains $required)) { throw "SETTINGS_INVALID_$required" }
     }
+
+    if ([int]$s.interval_days -lt 1 -or [int]$s.interval_days -gt 365) { throw "interval_days deve essere compreso tra 1 e 365" }
+    if ([string]$s.schedule_time -notmatch '^([01]\d|2[0-3]):[0-5]\d$') { throw "schedule_time deve essere HH:mm" }
+    try {
+        [void][datetime]::ParseExact([string]$s.first_run_date,"yyyy-MM-dd",[Globalization.CultureInfo]::InvariantCulture)
+    } catch {
+        throw "first_run_date deve essere yyyy-MM-dd"
+    }
+
+    if ($changed) { Save-F1JsonAtomic -Value $s -Path $path }
     return $s
 }
-
 function Save-F1JsonAtomic {
     param([Parameter(Mandatory)]$Value,[Parameter(Mandatory)][string]$Path)
     $tmp = "$Path.tmp"
@@ -81,9 +105,58 @@ function Mask-F1Email {
 
 function Get-F1CampaignKey {
     param([datetime]$Date = (Get-Date))
-    return "F1-AGENT-PRICING-{0:yyyy-MM}" -f $Date
+    return "F1-AGENT-PRICING-{0:yyyy-MM-dd}" -f $Date
 }
 
+function Get-F1ScheduleAnchor {
+    param([string]$FirstRunDate,[string]$ScheduleTime)
+    $date=[datetime]::ParseExact($FirstRunDate,"yyyy-MM-dd",[Globalization.CultureInfo]::InvariantCulture)
+    $time=[datetime]::ParseExact($ScheduleTime,"HH:mm",[Globalization.CultureInfo]::InvariantCulture)
+    return Get-Date -Year $date.Year -Month $date.Month -Day $date.Day -Hour $time.Hour -Minute $time.Minute -Second 0
+}
+
+function Get-F1CycleDate {
+    param(
+        [datetime]$Date=(Get-Date),
+        [string]$FirstRunDate,
+        [int]$IntervalDays=14
+    )
+    if ($IntervalDays -lt 1) { throw "INTERVAL_DAYS_INVALID" }
+    $anchor=[datetime]::ParseExact($FirstRunDate,"yyyy-MM-dd",[Globalization.CultureInfo]::InvariantCulture).Date
+    if ($Date.Date -le $anchor) { return $anchor }
+    $elapsed=[int][Math]::Floor(($Date.Date-$anchor).TotalDays)
+    $index=[int][Math]::Floor($elapsed / $IntervalDays)
+    return $anchor.AddDays($index*$IntervalDays)
+}
+
+function Get-F1NextScheduledRun {
+    param(
+        [string]$FirstRunDate,
+        [string]$ScheduleTime,
+        [int]$IntervalDays=14,
+        [datetime]$From=(Get-Date)
+    )
+    if ($IntervalDays -lt 1) { throw "INTERVAL_DAYS_INVALID" }
+    $anchor=Get-F1ScheduleAnchor -FirstRunDate $FirstRunDate -ScheduleTime $ScheduleTime
+    if ($From -le $anchor) { return $anchor }
+    $secondsPerCycle=[double]$IntervalDays*86400.0
+    $cycles=[Math]::Ceiling(($From-$anchor).TotalSeconds/$secondsPerCycle)
+    return $anchor.AddDays([int]($cycles*$IntervalDays))
+}
+
+function Get-F1UpcomingRunDates {
+    param(
+        [string]$FirstRunDate,
+        [string]$ScheduleTime,
+        [int]$IntervalDays=14,
+        [datetime]$From=(Get-Date),
+        [int]$Count=5
+    )
+    $first=Get-F1NextScheduledRun -FirstRunDate $FirstRunDate -ScheduleTime $ScheduleTime -IntervalDays $IntervalDays -From $From
+    $out=@()
+    for($i=0;$i -lt $Count;$i++){ $out += $first.AddDays($i*$IntervalDays) }
+    return $out
+}
 function Test-F1Category {
     param([string]$Categories,[string]$Category)
     if ([string]::IsNullOrWhiteSpace($Categories)) { return $false }
@@ -487,31 +560,39 @@ function Send-F1OutlookMail {
     $mail.Subject = $Subject
     $mail.HTMLBody = $Html
 
-    $mail.SendUsingAccount = $Context.Account
-    try { $mail.Save() } catch {}
-
-    $assigned=$null
-    try { $assigned=$mail.SendUsingAccount } catch {}
-
-    if ($null -eq $assigned -or -not (Test-F1AccountMatches -Account $assigned -Sender $Context.Sender)) {
+    try {
         $mail.SendUsingAccount = $Context.Account
         try { $mail.Save() } catch {}
-        try { $assigned=$mail.SendUsingAccount } catch { $assigned=$null }
-    }
 
-    if ($null -ne $assigned -and -not (Test-F1AccountMatches -Account $assigned -Sender $Context.Sender)) {
+        $assigned=$null
+        try { $assigned=$mail.SendUsingAccount } catch {}
+
+        if ($null -eq $assigned -or -not (Test-F1AccountMatches -Account $assigned -Sender $Context.Sender)) {
+            $mail.SendUsingAccount = $Context.Account
+            try { $mail.Save() } catch {}
+            try { $assigned=$mail.SendUsingAccount } catch { $assigned=$null }
+        }
+
+        if ($null -ne $assigned -and -not (Test-F1AccountMatches -Account $assigned -Sender $Context.Sender)) {
+            try { $mail.Delete() } catch {}
+            throw "SEND_ACCOUNT_MISMATCH"
+        }
+        if ($null -eq $assigned) {
+            try { $mail.Delete() } catch {}
+            throw "SEND_ACCOUNT_UNVERIFIED"
+        }
+    } catch {
+        if ($_.Exception.Message -like "SEND_ACCOUNT_*") { throw }
         try { $mail.Delete() } catch {}
-        throw "SEND_ACCOUNT_MISMATCH"
+        throw "SEND_PREPARE_FAILED: $($_.Exception.Message)"
     }
 
-    if ($null -eq $assigned) {
-        try { $mail.Delete() } catch {}
-        throw "SEND_ACCOUNT_UNVERIFIED"
+    try {
+        $mail.Send()
+    } catch {
+        throw "SEND_UNCERTAIN: $($_.Exception.Message)"
     }
-
-    $mail.Send()
 }
-
 function Find-F1MailBySubject {
     param($Folder,[string]$Subject,[datetime]$Since,[string]$Sender="")
     if ($null -eq $Folder) { return $null }
@@ -538,52 +619,58 @@ function Find-F1MailBySubject {
 }
 
 function Get-F1TaskStatus {
-    $task=$null; $info=$null
+    $task=$null; $info=$null; $interval=$null; $startBoundary=$null
     try { $task=Get-ScheduledTask -TaskName "F1 OUTLOOK MONTHLY MAILER" -ErrorAction Stop } catch {}
-    if ($task) { try { $info=Get-ScheduledTaskInfo -TaskName "F1 OUTLOOK MONTHLY MAILER" -ErrorAction Stop } catch {} }
+    if ($task) {
+        try { $info=Get-ScheduledTaskInfo -TaskName "F1 OUTLOOK MONTHLY MAILER" -ErrorAction Stop } catch {}
+        try {
+            $trigger=@($task.Triggers) | Select-Object -First 1
+            $interval=[int]$trigger.DaysInterval
+            $startBoundary=[datetime]$trigger.StartBoundary
+        } catch {}
+    }
     [pscustomobject]@{
         Exists=[bool]$task
         State=$(if($task){[string]$task.State}else{"MISSING"})
         Enabled=$(if($task){[bool]$task.Settings.Enabled}else{$false})
         StartWhenAvailable=$(if($task){[bool]$task.Settings.StartWhenAvailable}else{$false})
+        IntervalDays=$interval
+        StartBoundary=$startBoundary
         LastRunTime=$(if($info){$info.LastRunTime}else{$null})
         NextRunTime=$(if($info){$info.NextRunTime}else{$null})
         LastTaskResult=$(if($info){$info.LastTaskResult}else{$null})
     }
 }
-
 function New-F1TaskXml {
     param(
         [string]$User,
         [string]$AppDir,
-        [int]$ScheduleDay,
+        [string]$FirstRunDate,
         [string]$ScheduleTime,
-        [datetime]$Now=(Get-Date)
+        [int]$IntervalDays=14
     )
-    if ($ScheduleDay -lt 1 -or $ScheduleDay -gt 28) { throw "schedule_day deve essere compreso tra 1 e 28" }
+    if ($IntervalDays -lt 1 -or $IntervalDays -gt 365) { throw "interval_days deve essere compreso tra 1 e 365" }
     if ($ScheduleTime -notmatch '^([01]\d|2[0-3]):[0-5]\d$') { throw "schedule_time deve essere HH:mm" }
-    $time=[datetime]::ParseExact($ScheduleTime,"HH:mm",[Globalization.CultureInfo]::InvariantCulture)
-    $start=Get-Date -Year $Now.Year -Month $Now.Month -Day $ScheduleDay -Hour $time.Hour -Minute $time.Minute -Second 0
-    if ($start -le $Now) { $start=$start.AddMonths(1) }
+
+    $start=Get-F1ScheduleAnchor -FirstRunDate $FirstRunDate -ScheduleTime $ScheduleTime
     $main=Join-Path $AppDir "F1-Mailer.ps1"
     $arg='-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "{0}"' -f $main
     $xmlArg=[Security.SecurityElement]::Escape($arg)
     $xmlWork=[Security.SecurityElement]::Escape($AppDir)
     $xmlUser=[Security.SecurityElement]::Escape($User)
     $startText=$start.ToString("yyyy-MM-ddTHH:mm:ss")
-    $months="<January/><February/><March/><April/><May/><June/><July/><August/><September/><October/><November/><December/>"
+
     return @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
-  <RegistrationInfo><Description>Invio mensile F1 tramite Outlook Classic.</Description></RegistrationInfo>
+  <RegistrationInfo><Description>Invio F1 ogni $IntervalDays giorni tramite Outlook Classic.</Description></RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
       <StartBoundary>$startText</StartBoundary>
       <Enabled>true</Enabled>
-      <ScheduleByMonth>
-        <DaysOfMonth><Day>$ScheduleDay</Day></DaysOfMonth>
-        <Months>$months</Months>
-      </ScheduleByMonth>
+      <ScheduleByDay>
+        <DaysInterval>$IntervalDays</DaysInterval>
+      </ScheduleByDay>
     </CalendarTrigger>
   </Triggers>
   <Principals>
@@ -615,7 +702,6 @@ function New-F1TaskXml {
 </Task>
 "@
 }
-
 function Acquire-F1Mutex {
     $created = $false
     $mutex = New-Object System.Threading.Mutex($true,"Local\F1OutlookMonthlyMailer",[ref]$created)
@@ -627,25 +713,33 @@ function Acquire-F1Mutex {
 }
 
 function Write-F1Report {
-    param([hashtable]$Stats,[string]$CampaignKey,[datetime]$Started,[datetime]$Finished)
+    param(
+        [hashtable]$Stats,
+        [string]$CampaignKey,
+        [datetime]$ScheduledDate,
+        [string]$Account,
+        [datetime]$Started,
+        [datetime]$Finished
+    )
     $base = Initialize-F1LocalStore
     $path = Join-Path (Join-Path $base "reports") ("report-{0:yyyy-MM-dd-HHmm}.txt" -f $Finished)
     @"
-F1 OUTLOOK MONTHLY MAILER
-Campagna: $CampaignKey
-Data: $($Started.ToString("yyyy-MM-dd"))
+F1 OUTLOOK 14-DAY MAILER
+Ciclo: $CampaignKey
+Data programmata: $($ScheduledDate.ToString("yyyy-MM-dd"))
+Data esecuzione: $($Started.ToString("yyyy-MM-dd"))
 Ora inizio: $($Started.ToString("HH:mm:ss"))
 Ora fine: $($Finished.ToString("HH:mm:ss"))
-Contatti trovati: $($Stats.contacts)
-Consenso valido: $($Stats.authorized)
+Account: $Account
+Contatti totali: $($Stats.contacts)
+Consensi validi: $($Stats.authorized)
 Disiscritti: $($Stats.unsubscribed)
-Invalidi: $($Stats.invalid)
+Indirizzi invalidi: $($Stats.invalid)
 Gia inviati/bloccati da stato: $($Stats.already)
 Inviati: $($Stats.sent)
 Falliti: $($Stats.failed)
-Rimanenti oltre limite: $($Stats.remaining)
+Uncertain: $($Stats.uncertain)
+Rimanenti: $($Stats.remaining)
 "@ | Set-Content -Path $path -Encoding UTF8
     return $path
 }
-
-Export-ModuleMember -Function *-F1*

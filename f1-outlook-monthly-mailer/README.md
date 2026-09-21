@@ -1,101 +1,156 @@
-# F1 Outlook Monthly Mailer v1.0.2
+# F1 Outlook 14-Day Mailer v1.1.0
 
-Applicazione locale Windows che invia la campagna mensile F1 esclusivamente tramite Outlook Classic e l'account F1IMMOBILIARESUSA@OUTLOOK.IT.
+Sistema locale Windows per inviare automaticamente la campagna Agent Pricing ogni 14 giorni tramite Outlook Classic.
 
 ## Architettura
 
-Windows Task Scheduler -> PowerShell -> Outlook Classic COM/MAPI -> account F1 -> contatti dello store F1 -> invio -> stato locale -> report.
+Windows Task Scheduler -> PowerShell -> Outlook Classic COM/MAPI -> F1IMMOBILIARESUSA@OUTLOOK.IT -> F1 CAMPAGNA EMAIL -> consenso/disiscrizioni -> anti-duplicazione -> invio -> state.json -> log -> report.
 
-Non usa Supabase, Microsoft Graph, Azure, SMTP, Python, Node.js, Power Automate o servizi di invio esterni.
+GitHub gestisce codice, test, packaging e release. GitHub Actions non invia email reali.
 
-## Novita 1.0.2
+## Cadenza
 
-Hotfix invio COM: SendUsingAccount viene ora assegnato, il messaggio viene salvato come draft, l'account viene riletto e l'assegnazione viene ritentata una volta prima di bloccare l'invio.
+La schedulazione usa un CalendarTrigger nativo di Windows Task Scheduler con:
 
-- Diagnose-Outlook.ps1 distingue Nuovo Outlook, Outlook Classic, disponibilita MAPI e account realmente visibili a COM.
-- Setup-F1-Outlook-Account.ps1 apre il percorso di gestione profili di Outlook Classic e richiede esclusivamente l'aggiunta dell'account F1.
-- ricerca account robusta con priorita a SmtpAddress e confronto case-insensitive;
-- nessun fallback su account differenti;
-- SendUsingAccount viene controllato prima di Send();
-- contatti e categorie vengono cercati nello store associato all'account F1;
-- Verify-Test-Email.ps1 verifica Posta inviata F1 e ricezione nella Posta in arrivo F1;
-- pannello aggiornato con diagnostica Outlook, task e nuovi pulsanti;
-- installer idempotente: conserva settings.json, state.json, log e report.
+- ScheduleByDay
+- DaysInterval = 14
+- StartWhenAvailable = true
+- first_run_date configurabile
+- schedule_time configurabile
 
-## Installazione / aggiornamento
+Impostazioni di default:
 
-Estrai la Release v1.0.2 ed esegui Install-F1-Mailer.ps1.
+- first_run_date = 2026-09-22
+- schedule_time = 09:00
+- interval_days = 14
 
-Se F1IMMOBILIARESUSA@OUTLOOK.IT e presente solo nel Nuovo Outlook, l'installer non invia e avvia Setup-F1-Outlook-Account.ps1. Il requisito valido e che Outlook Classic/MAPI mostri l'account F1.
+Esempio:
 
-Password, MFA e credenziali Microsoft non vengono richieste dal programma e devono essere inserite soltanto nelle finestre ufficiali Microsoft.
+- 22/09/2026 09:00
+- 06/10/2026 09:00
+- 20/10/2026 09:00
+- 03/11/2026 09:00
+- 17/11/2026 09:00
 
-## Diagnostica
+Il task mantiene il nome storico F1 OUTLOOK MONTHLY MAILER per aggiornare l'installazione precedente senza creare duplicati. L'interfaccia usa il nome F1 OUTLOOK 14-DAY MAILER.
 
-Esegui Diagnose-Outlook.ps1.
+## Migrazione automatica
 
-Stati principali:
+L'installer e idempotente.
 
-- NEW_OUTLOOK_ONLY
-- CLASSIC_OUTLOOK_AVAILABLE
-- CLASSIC_OUTLOOK_PROFILE_MISSING_F1
-- F1_ACCOUNT_FOUND
+Conserva:
 
-La diagnostica mostra utente Windows, percorso e versione di Outlook Classic, processo attivo, disponibilita MAPI, numero account e per ogni account DisplayName, SmtpAddress, UserName, AccountType, DeliveryStore e StoreID quando disponibili.
+- settings.json
+- state.json
+- log
+- report
 
-## Test Outlook
+Se un vecchio settings.json non contiene interval_days o first_run_date, viene migrato automaticamente:
 
-Test-Outlook.ps1 deve restituire:
+- interval_days = 14
+- first_run_date = giorno successivo all'aggiornamento
+- schedule_time esistente, oppure 09:00 se assente
 
-- OUTLOOK CLASSIC: OK
-- ACCOUNT F1: OK
-- CONTATTI F1: OK
-- F1-CONSENSO: OK
-- F1-DISCRITTO: OK
+Il vecchio task viene sovrascritto con lo stesso nome e convertito alla schedulazione a 14 giorni.
 
-## Test email reale
+## Ciclo campagna
 
-Test-Email.ps1 invia una sola email:
+La chiave non e piu mensile.
 
-Da: F1IMMOBILIARESUSA@OUTLOOK.IT
-A: F1IMMOBILIARESUSA@OUTLOOK.IT
-Oggetto: TEST F1 - OUTLOOK MONTHLY MAILER
+Formato:
 
-Successivamente esegui Verify-Test-Email.ps1. Il progetto considera il test completato soltanto se trova il messaggio nella Posta inviata dello store F1 e nella Posta in arrivo F1.
+F1-AGENT-PRICING-YYYY-MM-DD
 
-## Contatti e consenso
+La data e la data pianificata del ciclo di 14 giorni.
 
-Cartella contatti dello store F1:
+Ogni contatto puo ricevere una sola email per ciclo. Gli stati SENT, SENDING e UNCERTAIN impediscono il reinvio automatico nello stesso ciclo.
+
+## Contatti
+
+Account obbligatorio:
+
+F1IMMOBILIARESUSA@OUTLOOK.IT
+
+Cartella:
 
 F1 CAMPAGNA EMAIL
 
 Categorie:
 
-- F1-CONSENSO: contatto autorizzato;
-- F1-DISCRITTO: blocco assoluto.
+- F1-CONSENSO: autorizzato
+- F1-DISCRITTO: blocco assoluto
 
-## Task mensile
+F1-DISCRITTO prevale sempre su F1-CONSENSO.
 
-Task:
+Prima di ogni ciclo il programma cerca DISISCRIVIMI nelle risposte e aggiorna il contatto.
 
-F1 OUTLOOK MONTHLY MAILER
+## Invio sicuro
 
-L'installer registra o aggiorna la stessa attivita senza duplicarla. E configurata con StartWhenAvailable=true.
+SendUsingAccount deve corrispondere all'account F1.
 
-Configurazione locale:
+Il programma:
+
+1. assegna l'account F1;
+2. salva il draft;
+3. rilegge SendUsingAccount;
+4. ritenta una volta l'assegnazione se necessario;
+5. blocca l'invio in caso di account differente;
+6. se Send() restituisce un errore dopo l'avvio dell'invio, registra UNCERTAIN e non reinvia automaticamente.
+
+## Limiti e batch
+
+max_emails_per_run mantiene il limite operativo di batch, default 100. Se i contatti eleggibili superano il batch, il processo continua automaticamente con i batch successivi nello stesso ciclo senza perdere i rimanenti.
+
+delay_seconds regola la pausa tra un invio e il successivo.
+
+## Test email
+
+Test-Email.ps1 invia una sola email:
+
+Da: F1IMMOBILIARESUSA@OUTLOOK.IT
+A: F1IMMOBILIARESUSA@OUTLOOK.IT
+Oggetto: TEST F1 - OUTLOOK 14 DAY MAILER
+
+Verify-Test-Email.ps1 verifica:
+
+- Posta inviata F1
+- Posta in arrivo F1
+
+La campagna completa non viene eseguita durante installazione o test.
+
+## Pannello
+
+F1-Control-Panel.ps1 mostra:
+
+- versione
+- Outlook Classic
+- account F1
+- account Outlook rilevati
+- contatti
+- consensi
+- disiscritti
+- ciclo corrente
+- intervallo
+- ultima esecuzione
+- prossima esecuzione
+- giorni alla prossima esecuzione
+- inviati/falliti/uncertain
+- stato task
+- StartWhenAvailable
+- pausa
+
+Pulsanti aggiuntivi:
+
+- VERIFICA TASK 14 GIORNI
+- MOSTRA PROSSIME ESECUZIONI
+
+## File locali
+
+Configurazione:
 
 %LOCALAPPDATA%\F1OutlookMonthlyMailer\settings.json
 
-Parametri:
-
-- schedule_day
-- schedule_time
-- delay_seconds
-- max_emails_per_run
-
-## Stato, log e report
-
-Stato anti-duplicazione:
+Stato:
 
 %LOCALAPPDATA%\F1OutlookMonthlyMailer\state.json
 
@@ -107,22 +162,10 @@ Report:
 
 %LOCALAPPDATA%\F1OutlookMonthlyMailer\reports
 
-## Pannello
+## Tecnologie
 
-F1-Control-Panel.ps1
+Consentite:
 
-Include:
+Windows, PowerShell, Outlook Classic COM/MAPI, Windows Task Scheduler.
 
-- DIAGNOSTICA OUTLOOK
-- CONFIGURA ACCOUNT F1
-- TEST OUTLOOK
-- INVIA TEST
-- VERIFICA EMAIL TEST
-- ESEGUI ORA
-- PAUSA
-- RIPRENDI
-- APRI LOG
-- APRI CONTATTI F1
-- IMPOSTAZIONI
-
-La campagna reale non viene inviata durante installazione o aggiornamento.
+Non usa Supabase, Microsoft Graph, Azure, SMTP, Python, Node.js, Power Automate, Zapier, Make, SendGrid, Brevo o Mailchimp.

@@ -1,6 +1,7 @@
 {
-  "schedule_day": 1,
+  "first_run_date": "2026-09-22",
   "schedule_time": "09:00",
+  "interval_days": 14,
   "delay_seconds": 30,
   "max_emails_per_run": 100,
   "contacts_folder": "F1 CAMPAGNA EMAIL",
